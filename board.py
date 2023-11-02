@@ -3,7 +3,7 @@ import numpy as np
 
 class GameBoard:
     def __init__(self, size):
-        self.base_board = np.zeros(size)
+        self.base_board = np.zeros(size, dtype='int')
         self.color_dict = {-1: 'x', 1: 'o', 0: '-'}
 
     def show_text(self):
