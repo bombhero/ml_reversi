@@ -1,8 +1,10 @@
 import datetime
 import numpy as np
+import random
 from reversi import ReversiGame
 from human_player import HumanPlayer
 from random_player import RandomPlayer
+from comm_utils import example_path
 
 
 class ExecuteReversi:
@@ -10,7 +12,7 @@ class ExecuteReversi:
         self.reversi_game = ReversiGame()
         self.player_list = []
         self.player_list.append(RandomPlayer('bomb', list(self.reversi_game.gb.color_dict.keys())[0],
-                                            list(self.reversi_game.gb.color_dict.keys())[1]))
+                                             list(self.reversi_game.gb.color_dict.keys())[1]))
         self.player_list.append(RandomPlayer('random', list(self.reversi_game.gb.color_dict.keys())[1],
                                 list(self.reversi_game.gb.color_dict.keys())[0]))
         # col 0-63: board situation
@@ -77,12 +79,12 @@ class ExecuteReversi:
 
     def save_record(self):
         dt = datetime.datetime.now()
-        ms = int(dt.strftime('%f')) % 1000
-        file_path = './records/reversi_{}{:>04}.csv'.format(dt.strftime('%Y%m%d%H%M%S'), ms)
+        ms = random.randint(1, 9999)
+        file_path = '{}/reversi_{}{:>04}.csv'.format(example_path, dt.strftime('%Y%m%d%H%M%S'), ms)
         np.savetxt(file_path, self.game_record, delimiter=',', fmt='%.0f')
 
 
 if __name__ == '__main__':
-    for _ in range(10000):
+    for _ in range(100):
         exe_reversi = ExecuteReversi()
         exe_reversi.execute()
