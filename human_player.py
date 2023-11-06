@@ -11,6 +11,10 @@ class HumanPlayer:
         print('Term to {}({}): '.format(self.player_name, game_board.color_dict[self.color]), end='')
         step_str = input()
         li = step_str.split(' ')
-        position = [int(li[idx]) for idx in range(2)]
+        step = []
+        for s in li:
+            if len(s.strip()) > 0:
+                step.append(s)
+        position = [int(step[idx]) for idx in range(2)]
         return position
 

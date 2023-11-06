@@ -1,7 +1,11 @@
 import numpy as np
 import os
 import random
+import torch
 from comm_utils import example_path
+from torch.utils.data import Dataset
+
+data_path = example_path + '/random_v_random'
 
 
 def read_one_file(file_path):
@@ -19,14 +23,16 @@ def read_one_file(file_path):
     step_x: 结构为 N*1 (0-63)
         为当前棋手在example_x局面下的落子. example_x局面不包括这颗落子
         step_x = row_idx*8+col_idx
-    example_y: 结构为 N*1 (-1, 1)
-        为当前棋手在该局的获胜情况, -1为输, 1为赢.
+    example_y: 结构为 N*1 [-1, 1]
+        为当前棋手在该局的获胜情况, 正数为赢, 数字越大说明最终差值越大, 负数为输, 0为平局.
         注意:由于当前棋手是轮流下棋,所以一个文件中的样本为一半赢,一半输
     """
     example_x = None
-    example_y = None
     org_x = np.loadtxt(fname=file_path, delimiter=',', dtype='int')
     winner_color = int(org_x[0][64])
+    if winner_color == 0:
+        return None, None, None
+    score = (float(org_x[0][65]) / 64) * winner_color
     for row_id in range(1, org_x.shape[0]):
         new_row = org_x[row_id]
         current_player = new_row[64]
@@ -41,7 +47,7 @@ def read_one_file(file_path):
             example_x = np.concatenate((example_x, new_x), axis=0)
 
     step_x = org_x[1:, 65]
-    example_y = org_x[1:, 64] * winner_color
+    example_y = org_x[1:, 64] * score
 
     return example_x, step_x, example_y
 
@@ -50,14 +56,22 @@ def read_all_files(file_count):
     example_x = None
     step_x = None
     example_y = None
-    file_list = os.listdir(example_path)
+    file_list = os.listdir(data_path)
     idx_list = [x for x in range(len(file_list))]
     if file_count < len(idx_list):
         idx_list = random.sample(idx_list, file_count)
+    count = 0
+    print('Loading data from {}'.format(data_path))
     for idx in idx_list:
-        full_path = '{}/{}'.format(example_path, file_list[idx])
-        print('Reading {}'.format(full_path))
+        full_path = '{}/{}'.format(data_path, file_list[idx])
+        count += 1
+        print('Reading {}'.format(count), end='\r')
+        # print('.', end='')
         new_x, new_step, new_y = read_one_file(full_path)
+        if new_x is None:
+            # print(' Both winner. Skip it.')
+            continue
+        # print(' Got {}'.format(new_x.shape[0]))
 
         if example_x is None:
             example_x = new_x
@@ -73,11 +87,29 @@ def read_all_files(file_count):
             example_y = new_y
         else:
             example_y = np.concatenate((example_y, new_y), axis=0)
-
+    print('')
     return example_x, step_x, example_y
 
 
+class ReversiDataSet(Dataset):
+    def __init__(self, file_count):
+        x, step_x, y = read_all_files(file_count)
+        self.data_x = torch.from_numpy(np.float32(x))
+        self.data_step_x = torch.from_numpy(np.int32(step_x))
+        self.data_y = torch.from_numpy(np.float32(y))
+
+    def __getitem__(self, item):
+        step_x = torch.zeros([1, 8, 8])
+        row_idx = int(int(self.data_step_x[item]) / 8)
+        col_idx = int(self.data_step_x[item]) % 8
+        step_x[0][row_idx][col_idx] = 1.0
+        return torch.concatenate((self.data_x[item, :], step_x), dim=0), self.data_y[item]
+
+    def __len__(self):
+        return self.data_y.shape[0]
+
+
 if __name__ == '__main__':
-    tst_file = '{}/reversi_202311031538331993.csv'.format(example_path)
-    tst_x, tst_step, tst_y = read_all_files(10000)
-    print(tst_x.shape[0])
+    tst_dataset = ReversiDataSet(100)
+    ret = tst_dataset[5:7]
+    pass
