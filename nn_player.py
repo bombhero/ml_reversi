@@ -53,7 +53,10 @@ class AIPlayer:
             self.calc_device = torch.device('cpu')
         if os.path.exists(self.model_file):
             print('{} is loaded {}'.format(player_name, self.model_file))
-            self.model = torch.load(self.model_file).to(self.calc_device)
+            if self.calc_device == torch.device('cpu'):
+                self.model = torch.load(self.model_file, map_location=torch.device('cpu')).to(self.calc_device)
+            else:
+                self.model = torch.load(self.model_file).to(self.calc_device)
         else:
             raise Exception('Cannot open {}'.format(self.model_file))
 

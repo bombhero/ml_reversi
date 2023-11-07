@@ -1,11 +1,14 @@
 import numpy as np
 import os
+import shutil
 import random
 import torch
+import hashlib
 from comm_utils import example_path
 from torch.utils.data import Dataset
 
-data_path = example_path + '/random_v_random'
+# data_path = example_path + '/random_v_random'
+data_path = example_path + '/ai_v_ai'
 
 
 def read_one_file(file_path):
@@ -91,6 +94,29 @@ def read_all_files(file_count):
     return example_x, step_x, example_y
 
 
+def duplicate_example_checking(remove_dup=False):
+    file_list = os.listdir(data_path)
+    md5_dict = {}
+    dup_list = []
+    for filename in file_list:
+        file_path = data_path + '/' + filename
+        print('Reading {}'.format(file_path), end='\r')
+        with open(file_path, 'rb') as f:
+            md5 = hashlib.md5(f.read()).hexdigest()
+            if md5 in list(md5_dict.keys()):
+                if remove_dup:
+                    dup_list.append(file_path)
+                else:
+                    print('Duplicate {}'.format(filename))
+                    md5_dict[md5].append(filename)
+            else:
+                md5_dict[md5] = [filename]
+    for file_path in dup_list:
+        print('Remove {}'.format(file_path))
+        os.remove(file_path)
+    print('Only {}'.format(len(md5_dict)))
+
+
 class ReversiDataSet(Dataset):
     def __init__(self, file_count):
         x, step_x, y = read_all_files(file_count)
@@ -110,6 +136,4 @@ class ReversiDataSet(Dataset):
 
 
 if __name__ == '__main__':
-    tst_dataset = ReversiDataSet(100)
-    ret = tst_dataset[5:7]
-    pass
+    duplicate_example_checking(remove_dup=True)
