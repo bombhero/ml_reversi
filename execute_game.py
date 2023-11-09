@@ -11,8 +11,7 @@ from nn_player import AIPlayer
 from nn_player_j import AIPlayerJ
 from comm_utils import example_path
 from comm_utils import records_path
-from nn_player import ReversiCriticNet
-from nn_player_j import ReversiCriticNetJ
+
 
 # game_path = example_path + '/random_v_random'
 # game_path = example_path + '/random_v_ai'
@@ -25,21 +24,20 @@ class ExecuteReversi:
     def __init__(self):
         self.reversi_game = ReversiGame()
         self.player_list = []
+        # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1]))
         # self.player_list.append(AIPlayer('Backup', list(self.reversi_game.gb.color_dict.keys())[1],
         #                                  list(self.reversi_game.gb.color_dict.keys())[0],
         #                                  model_file_path=backup_model))
-        # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[0],
-        #                                   list(self.reversi_game.gb.color_dict.keys())[1],
-        #                                   model_file_path=jay_model))
         # self.player_list.append(RandomPlayer('Dice', list(self.reversi_game.gb.color_dict.keys())[0],
         #                                      list(self.reversi_game.gb.color_dict.keys())[1]))
         # self.player_list.append(RandomPlayer('Random', list(self.reversi_game.gb.color_dict.keys())[1],
         #                                      list(self.reversi_game.gb.color_dict.keys())[0]))
-        self.player_list.append(AIPlayer('Backup', list(self.reversi_game.gb.color_dict.keys())[1],
-                                         list(self.reversi_game.gb.color_dict.keys())[0],
-                                         model_file_path=backup_model))
         self.player_list.append(HumanPlayer('Bomb', list(self.reversi_game.gb.color_dict.keys())[0],
                                             list(self.reversi_game.gb.color_dict.keys())[1]))
+        self.player_list.append(AIPlayerJ('AlphaWA', list(self.reversi_game.gb.color_dict.keys())[1],
+                                          list(self.reversi_game.gb.color_dict.keys())[0]))
+        # game_record is a numpy
         # col 0-63: board situation
         # col 64: player color
         # col 65: position id (row_id*8+col_idx)

@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import torch
+import __main__
 from comm_utils import model_path
 
 cnn_model_path = model_path + '/' + 'playerj'
@@ -40,6 +41,9 @@ class ReversiCriticNetJ(torch.nn.Module):
         x = self.linear_l2(x)
         x = self.output(x)
         return x
+
+
+setattr(__main__, 'ReversiCriticNetJ', ReversiCriticNetJ)
 
 
 class AIPlayerJ:
