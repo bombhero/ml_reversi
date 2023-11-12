@@ -36,8 +36,8 @@ class NetTrain:
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(10000)
         dataloader = DataLoader(dataset=dataset, batch_size=4098, shuffle=True)
-        self.model.train()
         for e in range(epoch):
+            self.model.train()
             current_loss = 0
             for i, data in enumerate(dataloader):
                 print('Epoch {}: load {}.'.format(e, i), end='\r')
@@ -57,23 +57,21 @@ class NetTrain:
                 if current_loss > (sum(loss_record) / len(loss_record)):
                     print('Current loss({}) is higher than ave loss({})'.format(current_loss,
                                                                                 (sum(loss_record) / len(loss_record))))
-                    training_stage = 1
+                    break
                 else:
-                    if training_stage == 1:
-                        print('Training done.')
-                        break
-        self.model.eval()
+                    self.model.eval()
+                    self.save_model()
 
     def save_model(self):
         torch.save(self.model, self.model_file)
+        print('Save {}'.format(self.model_file))
 
 
 if __name__ == '__main__':
-    for tst_i in range(2):
+    for tst_i in range(4):
+        print('-------------------------------------------------------------------Round {}'.format(tst_i))
         if tst_i == 0:
             net_train = NetTrain(reload=False)
         else:
             net_train = NetTrain(reload=True)
-        print('-------------------------------------------------------------------Round {}'.format(tst_i))
         net_train.train(200)
-        net_train.save_model()

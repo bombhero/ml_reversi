@@ -70,10 +70,10 @@ class AIPlayerJ:
                 self.model = torch.load(self.model_file).to(self.calc_device)
         else:
             raise Exception('Cannot open {}'.format(self.model_file))
-        if not shadow:
-            self.emulate_oppo = AIPlayerJ('Shadow', oppo_color, color, model_file_path=self.model_file, shadow=True)
-        else:
-            self.emulate_oppo = None
+        # if not shadow:
+        #     self.emulate_oppo = AIPlayerJ('Shadow', oppo_color, color, model_file_path=self.model_file, shadow=True)
+        # else:
+        #     self.emulate_oppo = None
 
     def transfer_board(self, board):
         """
@@ -103,8 +103,12 @@ class AIPlayerJ:
 
     def get_action(self, game_board, position_list):
         max_idx = 0
-        if (random.random() > 0.99) or (sum(sum(game_board.base_board == 0)) > 58):
-            r_idx = random.randint(0, (len(position_list)-1))
+        rand_flag = False
+        if sum(sum(game_board.base_board == 0)) > 58:
+            if random.random() > 0.1:
+                rand_flag = True
+        if rand_flag:
+            r_idx = random.randint(0, (len(position_list) - 1))
             print('Random step {}'.format(position_list[r_idx]))
             return position_list[r_idx]
         score_list = self.predict_score(game_board.base_board, position_list)

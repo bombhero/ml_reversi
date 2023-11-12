@@ -111,10 +111,13 @@ def duplicate_example_checking(remove_dup=False):
                     md5_dict[md5].append(filename)
             else:
                 md5_dict[md5] = [filename]
+    print('')
+    count = 0
     for file_path in dup_list:
         print('Remove {}'.format(file_path))
         os.remove(file_path)
-    print('Only {}'.format(len(md5_dict)))
+        count += 1
+    print('Only {}, remove {}'.format(len(md5_dict), count))
 
 
 class ReversiDataSet(Dataset):
