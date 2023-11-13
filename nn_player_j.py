@@ -47,7 +47,7 @@ setattr(__main__, 'ReversiCriticNetJ', ReversiCriticNetJ)
 
 
 class AIPlayerJ:
-    def __init__(self, player_name, color, oppo_color, model_file_path=None, shadow=False):
+    def __init__(self, player_name, color, oppo_color, model_file_path=None, shadow=False, verbose=False):
         self.player_name = player_name
         self.color = color
         self.oppo_color = oppo_color
@@ -74,6 +74,7 @@ class AIPlayerJ:
         #     self.emulate_oppo = AIPlayerJ('Shadow', oppo_color, color, model_file_path=self.model_file, shadow=True)
         # else:
         #     self.emulate_oppo = None
+        self.verbose = verbose
 
     def transfer_board(self, board):
         """
@@ -112,11 +113,12 @@ class AIPlayerJ:
             print('Random step {}'.format(position_list[r_idx]))
             return position_list[r_idx]
         score_list = self.predict_score(game_board.base_board, position_list)
-        print(score_list, end='')
+        if self.verbose:
+            print(score_list, end='')
         for idx in range(1, len(score_list)):
             if score_list[idx] >= score_list[max_idx]:
                 max_idx = idx
-        print(position_list[max_idx])
+        print('Step: {}'.format(position_list[max_idx]))
         return position_list[max_idx]
 
 

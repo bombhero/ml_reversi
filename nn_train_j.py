@@ -28,9 +28,6 @@ class NetTrain:
         self.backup_model = None
 
     def train(self, epoch):
-        # 0: loss > average switch to 1
-        # 1: loss < average exit
-        training_stage = 0
         loss_record = []
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')

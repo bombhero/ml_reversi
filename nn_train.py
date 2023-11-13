@@ -28,16 +28,13 @@ class NetTrain:
         self.backup_model = None
 
     def train(self, epoch):
-        # 0: loss > average switch to 1
-        # 1: loss < average exit
-        training_stage = 0
         loss_record = []
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')
-        dataset = ReversiDataSet(5000)
+        dataset = ReversiDataSet(10000)
         dataloader = DataLoader(dataset=dataset, batch_size=4098, shuffle=True)
-        self.model.train()
         for e in range(epoch):
+            self.model.train()
             current_loss = 0
             for i, data in enumerate(dataloader):
                 print('Epoch {}: load {}.'.format(e, i), end='\r')
@@ -57,23 +54,21 @@ class NetTrain:
                 if current_loss > (sum(loss_record) / len(loss_record)):
                     print('Current loss({}) is higher than ave loss({})'.format(current_loss,
                                                                                 (sum(loss_record) / len(loss_record))))
-                    training_stage = 1
+                    break
                 else:
-                    if training_stage == 1:
-                        print('Training done.')
-                        break
-        self.model.eval()
+                    self.model.eval()
+                    self.save_model()
 
     def save_model(self):
         torch.save(self.model, self.model_file)
+        print('Save model to {}'.format(self.model_file))
 
 
 if __name__ == '__main__':
-    for tst_i in range(5):
+    for tst_i in range(2):
         if tst_i == 0:
             net_train = NetTrain(reload=False)
         else:
             net_train = NetTrain(reload=True)
         print('-------------------------------------------------------------------Round {}'.format(tst_i))
         net_train.train(200)
-        net_train.save_model()
