@@ -8,7 +8,8 @@ from comm_utils import example_path
 from torch.utils.data import Dataset
 
 # data_path = example_path + '/random_v_random'
-data_path = example_path + '/ai_v_ai'
+# data_path = example_path + '/ai_v_ai'
+data_path = example_path + '/training_data'
 
 
 def read_one_file(file_path):
@@ -111,7 +112,7 @@ def duplicate_example_checking(remove_dup=False):
                     md5_dict[md5].append(filename)
             else:
                 md5_dict[md5] = [filename]
-	print('')
+    print('')
     remove_count = 0
     for file_path in dup_list:
         print('Remove {}'.format(file_path))

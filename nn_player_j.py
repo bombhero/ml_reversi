@@ -105,9 +105,11 @@ class AIPlayerJ:
     def get_action(self, game_board, position_list):
         max_idx = 0
         rand_flag = False
-        if sum(sum(game_board.base_board == 0)) > 58:
-            if random.random() > 0.1:
+        if sum(sum(game_board.base_board == 0)) > 20:
+            if random.random() > 0.95:
                 rand_flag = True
+        if sum(sum(game_board.base_board == 0)) > 58:
+            rand_flag = True
         if rand_flag:
             r_idx = random.randint(0, (len(position_list) - 1))
             print('Random step {}'.format(position_list[r_idx]))
