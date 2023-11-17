@@ -106,7 +106,7 @@ class AIPlayerJ:
         max_idx = 0
         rand_flag = False
         if sum(sum(game_board.base_board == 0)) > 20:
-            if random.random() > 0.95:
+            if random.random() > 0.97:
                 rand_flag = True
         if sum(sum(game_board.base_board == 0)) > 58:
             rand_flag = True

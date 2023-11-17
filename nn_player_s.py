@@ -131,4 +131,4 @@ class AIPlayerS:
 
 
 if __name__ == '__main__':
-    tst_player = AIPlayerJ('AIPlayer', 1, -1)
+    tst_player = AIPlayerS('AIPlayer', 1, -1)

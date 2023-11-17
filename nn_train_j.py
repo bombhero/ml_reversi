@@ -4,7 +4,7 @@ import torch
 import copy
 from torch.utils.data import DataLoader
 from comm_utils import model_path
-from nn_dataloader import ReversiDataSet
+from nn_dataloader_rot import ReversiDataSet
 from nn_player_j import ReversiCriticNetJ
 
 cnn_model_path = model_path + '/' + 'playerj'
@@ -32,6 +32,7 @@ class NetTrain:
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(10000)
+        print('Loaded data length = {}'.format(len(dataset)))
         dataloader = DataLoader(dataset=dataset, batch_size=4098, shuffle=True)
         for e in range(epoch):
             self.model.train()
@@ -65,7 +66,7 @@ class NetTrain:
 
 
 if __name__ == '__main__':
-    for tst_i in range(4):
+    for tst_i in range(3):
         print('-------------------------------------------------------------------Round {}'.format(tst_i))
         if tst_i == 0:
             net_train = NetTrain(reload=False)

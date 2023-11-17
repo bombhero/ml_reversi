@@ -21,7 +21,10 @@ game_path = example_path + '/ai_v_ai'
 backup_model = model_path + '/cnn_backup/model_critic.pkl'
 jay_model = model_path + '/playerj_backup_20231107/model_critic.pkl'
 jump_model = model_path + '/playerj_backup_20231110/model_critic.pkl'
-test_model = model_path + '/playerj_backup/model_critic.pkl'
+jungle_model = model_path + '/playerj_backup_20231114/model_critic.pkl'
+start_a_model = model_path + '/players_backup_20231115A/model_critic.pkl'
+start_b_model = model_path + '/players_backup_20231115B/model_critic.pkl'
+start_c_model = model_path + '/players_backup_20231115C/model_critic.pkl'
 
 
 class ExecuteReversi:
@@ -35,13 +38,18 @@ class ExecuteReversi:
         #                                      list(self.reversi_game.gb.color_dict.keys())[1]))
         # self.player_list.append(RandomPlayer('Random', list(self.reversi_game.gb.color_dict.keys())[1],
         #                                      list(self.reversi_game.gb.color_dict.keys())[0]))
-        # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[0],
+        # self.player_list.append(AIPlayerJ('NNJungle', list(self.reversi_game.gb.color_dict.keys())[0],
         #                                   list(self.reversi_game.gb.color_dict.keys())[1],
+        #                                   model_file_path=jungle_model))
+        # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[1],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[0],
         #                                   model_file_path=jay_model))
-        # self.player_list.append(AIPlayerS('NNStar', list(self.reversi_game.gb.color_dict.keys())[1],
-        #                                   list(self.reversi_game.gb.color_dict.keys())[0]))
-        self.player_list.append(AIPlayerJ('NNJungle', list(self.reversi_game.gb.color_dict.keys())[1],
-                                          list(self.reversi_game.gb.color_dict.keys())[0]))
+        self.player_list.append(AIPlayerS('NNStarA', list(self.reversi_game.gb.color_dict.keys())[1],
+                                          list(self.reversi_game.gb.color_dict.keys())[0], verbose=True,
+                                          model_file_path=start_a_model))
+        # self.player_list.append(AIPlayerS('NNStarC', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=start_c_model))
         self.player_list.append(HumanPlayer('Bomb', list(self.reversi_game.gb.color_dict.keys())[0],
                                             list(self.reversi_game.gb.color_dict.keys())[1]))
         # col 0-63: board situation
@@ -121,7 +129,8 @@ class ExecuteReversi:
 
 def main():
     df = None
-    for _ in range(3000):
+    game_summary = {}
+    for _ in range(100):
         exe_reversi = ExecuteReversi()
         exe_reversi.execute()
         result = {exe_reversi.player_list[0].player_name: exe_reversi.player_list[0].result,
@@ -132,10 +141,15 @@ def main():
             result['winner'] = exe_reversi.player_list[1].player_name
         else:
             result['winner'] = 'Both'
+        if result['winner'] not in list(game_summary.keys()):
+            game_summary[result['winner']] = 1
+        else:
+            game_summary[result['winner']] += 1
         if df is None:
             df = pd.DataFrame(result, index=[0])
         else:
             df = pd.concat((df, pd.DataFrame(result, index=[0])), ignore_index=True)
+    print('Summary {}'.format(game_summary))
     dt = datetime.datetime.now()
     if not os.path.exists(records_path):
         os.makedirs(records_path)

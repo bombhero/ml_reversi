@@ -31,6 +31,7 @@ class NetTrain:
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(10000)
+        print('Loaded data length = {}'.format(len(dataset)))
         dataloader = DataLoader(dataset=dataset, batch_size=1024, shuffle=True)
         for e in range(epoch):
             self.model.train()
