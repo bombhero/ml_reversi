@@ -10,14 +10,15 @@ from random_player import RandomPlayer
 from nn_player import AIPlayer
 from nn_player_j import AIPlayerJ
 from nn_player_s import AIPlayerS
+from calc_player import CalcPlayer
 from comm_utils import example_path
 from comm_utils import records_path
 from comm_utils import model_path
 
 # game_path = example_path + '/random_v_random'
 # game_path = example_path + '/random_v_ai'
-game_path = example_path + '/ai_v_ai'
-# game_path = example_path + '/training_data'
+# game_path = example_path + '/ai_v_ai'
+game_path = example_path + '/training_data'
 backup_model = model_path + '/cnn_backup/model_critic.pkl'
 jay_model = model_path + '/playerj_backup_20231107/model_critic.pkl'
 jump_model = model_path + '/playerj_backup_20231110/model_critic.pkl'
@@ -28,7 +29,7 @@ start_c_model = model_path + '/players_backup_20231115C/model_critic.pkl'
 
 
 class ExecuteReversi:
-    def __init__(self):
+    def __init__(self, reverse=False):
         self.reversi_game = ReversiGame()
         self.player_list = []
         # self.player_list.append(AIPlayer('Backup', list(self.reversi_game.gb.color_dict.keys())[0],
@@ -44,19 +45,23 @@ class ExecuteReversi:
         # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[1],
         #                                   list(self.reversi_game.gb.color_dict.keys())[0],
         #                                   model_file_path=jay_model))
-        self.player_list.append(AIPlayerS('NNStarA', list(self.reversi_game.gb.color_dict.keys())[1],
-                                          list(self.reversi_game.gb.color_dict.keys())[0], verbose=True,
+        self.player_list.append(AIPlayerS('NNStarA', list(self.reversi_game.gb.color_dict.keys())[0],
+                                          list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
                                           model_file_path=start_a_model))
         # self.player_list.append(AIPlayerS('NNStarC', list(self.reversi_game.gb.color_dict.keys())[0],
         #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
         #                                   model_file_path=start_c_model))
-        self.player_list.append(HumanPlayer('Bomb', list(self.reversi_game.gb.color_dict.keys())[0],
-                                            list(self.reversi_game.gb.color_dict.keys())[1]))
+        # self.player_list.append(HumanPlayer('Bomb', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                     list(self.reversi_game.gb.color_dict.keys())[1]))
+        self.player_list.append(CalcPlayer('Calc', list(self.reversi_game.gb.color_dict.keys())[1],
+                                           list(self.reversi_game.gb.color_dict.keys())[0]))
+        if reverse:
+            self.player_list = [self.player_list[1], self.player_list[0]]
         # col 0-63: board situation
         # col 64: player color
         # col 65: position id (row_id*8+col_idx)
         self.game_record = None
-        self.show = True
+        self.show = False
 
     def execute(self):
         skip_count = 0
@@ -130,8 +135,12 @@ class ExecuteReversi:
 def main():
     df = None
     game_summary = {}
-    for _ in range(100):
-        exe_reversi = ExecuteReversi()
+    for i in range(10000):
+        if i % 2 == 1:
+            reverse = True
+        else:
+            reverse = False
+        exe_reversi = ExecuteReversi(reverse)
         exe_reversi.execute()
         result = {exe_reversi.player_list[0].player_name: exe_reversi.player_list[0].result,
                   exe_reversi.player_list[1].player_name: exe_reversi.player_list[1].result}

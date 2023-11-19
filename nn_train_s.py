@@ -1,13 +1,16 @@
-import numpy as np
+import datetime
 import os
 import torch
+import time
 from torch.utils.data import DataLoader
 from comm_utils import model_path
-from nn_dataloader import ReversiDataSet
+from nn_dataloader_rot import ReversiDataSet
 from nn_player_s import ReversiCriticNetS
 
-cnn_model_path = model_path + '/' + 'players'
-critic_model_file = 'model_critic.pkl'
+model_label = 'players'
+cnn_model_path = model_path + '/{}'.format(model_label)
+backup_model_path = model_path + '/{}_back'.format(model_label)
+critic_model_file = 'model_{}.pkl'.format(model_label)
 
 
 class NetTrain:
@@ -31,13 +34,14 @@ class NetTrain:
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(10000)
-        print('Loaded data length = {}'.format(len(dataset)))
-        dataloader = DataLoader(dataset=dataset, batch_size=1024, shuffle=True)
+        dataloader = DataLoader(dataset=dataset, batch_size=int(len(dataset) / 100), shuffle=True, num_workers=4)
         for e in range(epoch):
             self.model.train()
             current_loss = 0
+            start_ts = time.time()
             for i, data in enumerate(dataloader):
-                print('Epoch {}: load {}.'.format(e, i), end='\r')
+                middle_ts = time.time()
+                print('Epoch {}: Spent {:.2f}, load {}.'.format(e, (middle_ts-start_ts), i), end='\r')
                 tensor_x, tensor_y = data
                 train_x = torch.autograd.Variable(tensor_x).to(self.calc_device)
                 train_y = torch.autograd.Variable(tensor_y.view(tensor_y.size(0), -1)).to(self.calc_device)
@@ -47,7 +51,8 @@ class NetTrain:
                 current_loss += loss.data.cpu()
                 loss.backward()
                 optimizer.step()
-            print('Epoch {}: loss = {}'.format(e, current_loss))
+            end_ts = time.time()
+            print('Epoch {}: Spent {:.2f}sec, loss = {}'.format(e, (end_ts - start_ts), current_loss))
             loss_record.append(current_loss)
             if len(loss_record) > 10:
                 del loss_record[0]
@@ -60,8 +65,14 @@ class NetTrain:
                     self.save_model()
 
     def save_model(self):
+        dt = datetime.datetime.now()
+        backup_path = '{}/{}'.format(backup_model_path, dt.strftime('%Y%m%d%H%M%S'))
+        if not os.path.exists(backup_path):
+            os.makedirs(backup_path)
+        backup_file = '{}/{}'.format(backup_path, critic_model_file)
         torch.save(self.model, self.model_file)
-        print('Save {}'.format(self.model_file))
+        torch.save(self.model, backup_file)
+        print('Save {}, backup {}'.format(self.model_file, backup_file))
 
 
 if __name__ == '__main__':

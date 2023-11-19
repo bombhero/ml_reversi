@@ -8,6 +8,7 @@ import shutil
 import random
 import torch
 import hashlib
+import time
 from comm_utils import example_path
 from torch.utils.data import Dataset
 
@@ -66,41 +67,44 @@ def read_one_file(file_path):
                 example_y = np.array([new_row[64] * score])
             else:
                 example_y = np.concatenate((example_y, np.array([new_row[64] * score])), axis=0)
-
     return example_x, example_y
 
 
 def read_all_files(file_count):
-    example_x = None
-    example_y = None
+    enhance_x = np.zeros([60*4*file_count, 4, 8, 8])
+    enhance_y = np.zeros([60*4*file_count])
     file_list = os.listdir(data_path)
     idx_list = [x for x in range(len(file_list))]
     if file_count < len(idx_list):
         idx_list = random.sample(idx_list, file_count)
     count = 0
+    total_row = 0
     print('Loading data from {}'.format(data_path))
+    total_start_ts = time.time()
     for idx in idx_list:
         full_path = '{}/{}'.format(data_path, file_list[idx])
         count += 1
-        print('Reading {}'.format(count), end='\r')
+        start_ts = time.time()
+        print('Reading {}, '.format(count), end='')
         # print('.', end='')
         new_x, new_y = read_one_file(full_path)
+        middle_ts = time.time()
+        print('load {:.4f}, '.format(middle_ts-start_ts), end='')
         if new_x is None:
             # print(' Both winner. Skip it.')
             continue
         # print(' Got {}'.format(new_x.shape[0]))
 
-        if example_x is None:
-            example_x = new_x
-        else:
-            example_x = np.concatenate((example_x, new_x), axis=0)
-
-        if example_y is None:
-            example_y = new_y
-        else:
-            example_y = np.concatenate((example_y, new_y), axis=0)
+        current_len = new_y.shape[0]
+        enhance_x[total_row:(total_row+current_len), :, :, :] = new_x
+        enhance_y[total_row:(total_row+current_len)] = new_y
+        total_row += current_len
+        end_ts = time.time()
+        print('merge {:.4f}'.format(end_ts-middle_ts), end='\r')
     print('')
-    return example_x, example_y
+    total_end_ts = time.time()
+    print('Loaded {} lines. Spent {:.2f} seconds.'.format(total_row, (total_end_ts - total_start_ts)))
+    return enhance_x[:total_row, :, :, :], enhance_y[:total_row]
 
 
 def duplicate_example_checking(remove_dup=False):
