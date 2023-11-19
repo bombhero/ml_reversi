@@ -1,4 +1,5 @@
 import copy
+import random
 
 
 class CalcPlayer:
@@ -18,9 +19,15 @@ class CalcPlayer:
             count = self.predict_result(game_board.base_board, position)
             if count > max_count:
                 max_count = count
-                final_position = position
-        print(final_position)
-        return final_position
+                final_position = [position]
+            elif count == max_count:
+                final_position.append(position)
+        if len(final_position) == 1:
+            select_id = 0
+        else:
+            select_id = random.randint(0, len(final_position)-1)
+        print('{},{}'.format(len(final_position), final_position[select_id]))
+        return final_position[select_id]
 
     @staticmethod
     def _is_in_board(position):
