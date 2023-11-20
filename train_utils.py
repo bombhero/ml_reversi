@@ -1,4 +1,4 @@
-train_root_path = 'c:/bomb/proj/ml_reversi_train'
+train_root_path = './ml_reversi_train'
 
 train_example_path = train_root_path + '/examples'
 train_models_path = train_root_path + '/models'
