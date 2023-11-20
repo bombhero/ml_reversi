@@ -53,7 +53,7 @@ setattr(__main__, 'ReversiCriticNetS', ReversiCriticNetS)
 
 
 class AIPlayerS:
-    def __init__(self, player_name, color, oppo_color, model_file_path=None, shadow=False, verbose=False):
+    def __init__(self, player_name, color, oppo_color, model_file_path=None, train_mode=False, verbose=False):
         self.player_name = player_name
         self.color = color
         self.oppo_color = oppo_color
@@ -69,7 +69,8 @@ class AIPlayerS:
         else:
             self.calc_device = torch.device('cpu')
         if os.path.exists(self.model_file):
-            print('{} is loaded {}'.format(player_name, self.model_file))
+            if verbose:
+                print('{} is loaded {}'.format(player_name, self.model_file))
             if self.calc_device == torch.device('cpu'):
                 self.model = torch.load(self.model_file, map_location=torch.device('cpu')).to(self.calc_device)
             else:
@@ -81,6 +82,8 @@ class AIPlayerS:
         # else:
         #     self.emulate_oppo = None
         self.verbose = verbose
+        # If train_mode is true, need to provide some random step
+        self.train_mode = train_mode
 
     def transfer_board(self, board):
         """
@@ -111,22 +114,25 @@ class AIPlayerS:
     def get_action(self, game_board, position_list):
         max_idx = 0
         rand_flag = False
-        if sum(sum(game_board.base_board == 0)) > 20:
-            if random.random() > 0.95:
+        if self.train_mode:
+            if sum(sum(game_board.base_board == 0)) > 20:
+                if random.random() > 1.0:
+                    rand_flag = True
+            if sum(sum(game_board.base_board == 0)) > 59:
                 rand_flag = True
-        if sum(sum(game_board.base_board == 0)) > 58:
-            rand_flag = True
-        if rand_flag:
-            r_idx = random.randint(0, (len(position_list) - 1))
-            print('Random step {}'.format(position_list[r_idx]))
-            return position_list[r_idx]
+            if rand_flag:
+                r_idx = random.randint(0, (len(position_list) - 1))
+                if self.verbose:
+                    print('Random step {}'.format(position_list[r_idx]))
+                return position_list[r_idx]
         score_list = self.predict_score(game_board.base_board, position_list)
         if self.verbose:
             print(score_list, end='')
         for idx in range(1, len(score_list)):
             if score_list[idx] >= score_list[max_idx]:
                 max_idx = idx
-        print('Step: {}'.format(position_list[max_idx]))
+        if self.verbose:
+            print('Step: {}'.format(position_list[max_idx]))
         return position_list[max_idx]
 
 

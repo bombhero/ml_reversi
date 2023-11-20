@@ -14,7 +14,7 @@ from torch.utils.data import Dataset
 
 # data_path = example_path + '/random_v_random'
 # data_path = example_path + '/ai_v_ai'
-data_path = example_path + '/training_data'
+default_data_path = example_path + '/training_data'
 
 
 def read_one_file(file_path):
@@ -70,7 +70,7 @@ def read_one_file(file_path):
     return example_x, example_y
 
 
-def read_all_files(file_count):
+def read_all_files(file_count, data_path=default_data_path):
     enhance_x = np.zeros([60*4*file_count, 4, 8, 8])
     enhance_y = np.zeros([60*4*file_count])
     file_list = os.listdir(data_path)
@@ -107,7 +107,7 @@ def read_all_files(file_count):
     return enhance_x[:total_row, :, :, :], enhance_y[:total_row]
 
 
-def duplicate_example_checking(remove_dup=False):
+def duplicate_example_checking(remove_dup=False, data_path=default_data_path):
     file_list = os.listdir(data_path)
     md5_dict = {}
     dup_list = []
@@ -133,9 +133,22 @@ def duplicate_example_checking(remove_dup=False):
     print('Remained {}, Removed {}'.format(len(md5_dict), remove_count))
 
 
+def remove_old_examples(remained, data_path=default_data_path):
+    file_list = os.listdir(data_path)
+    file_list.sort(reverse=True)
+    if len(file_list) > remained:
+        for filename in file_list[remained:]:
+            full_path = data_path + '/' + filename
+            print('Remove {}'.format(full_path))
+            os.remove(full_path)
+
+
 class ReversiDataSet(Dataset):
-    def __init__(self, file_count):
-        x, y = read_all_files(file_count)
+    def __init__(self, file_count, examples_path=None):
+        if examples_path is None:
+            x, y = read_all_files(file_count)
+        else:
+            x, y = read_all_files(file_count, data_path=examples_path)
         self.data_x = torch.from_numpy(np.float32(x))
         self.data_y = torch.from_numpy(np.float32(y))
 

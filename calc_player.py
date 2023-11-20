@@ -3,16 +3,16 @@ import random
 
 
 class CalcPlayer:
-    def __init__(self, player_name, color, oppo_color):
+    def __init__(self, player_name, color, oppo_color, verbose=True):
         self.player_name = player_name
         self.color = color
         self.oppo_color = oppo_color
         self.position_count = 0
         self.position_list = []
         self.result = None
+        self.verbose = verbose
 
     def get_action(self, game_board, position_list):
-        print('Term to {}({}): '.format(self.player_name, game_board.color_dict[self.color]), end='')
         max_count = 0
         final_position = []
         for position in position_list:
@@ -26,7 +26,9 @@ class CalcPlayer:
             select_id = 0
         else:
             select_id = random.randint(0, len(final_position)-1)
-        print('{},{}'.format(len(final_position), final_position[select_id]))
+        if self.verbose:
+            print('Term to {}({}): '.format(self.player_name, game_board.color_dict[self.color]), end='')
+            print('{},{}'.format(len(final_position), final_position[select_id]))
         return final_position[select_id]
 
     @staticmethod
