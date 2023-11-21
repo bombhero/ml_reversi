@@ -31,9 +31,9 @@ class NetTrain:
         loss_record = []
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')
-        dataset = ReversiDataSet(10000)
+        dataset = ReversiDataSet(5000)
         print('Loaded data length = {}'.format(len(dataset)))
-        dataloader = DataLoader(dataset=dataset, batch_size=4098, shuffle=True)
+        dataloader = DataLoader(dataset=dataset, batch_size=4096, shuffle=True)
         for e in range(epoch):
             self.model.train()
             current_loss = 0
@@ -66,7 +66,7 @@ class NetTrain:
 
 
 if __name__ == '__main__':
-    for tst_i in range(3):
+    for tst_i in range(4):
         print('-------------------------------------------------------------------Round {}'.format(tst_i))
         if tst_i == 0:
             net_train = NetTrain(reload=False)
