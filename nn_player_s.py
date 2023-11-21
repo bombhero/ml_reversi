@@ -116,15 +116,15 @@ class AIPlayerS:
         rand_flag = False
         if self.train_mode:
             if sum(sum(game_board.base_board == 0)) > 20:
-                if random.random() > 1.0:
+                if random.random() > 0.7:
                     rand_flag = True
-            if sum(sum(game_board.base_board == 0)) > 59:
-                rand_flag = True
-            if rand_flag:
-                r_idx = random.randint(0, (len(position_list) - 1))
-                if self.verbose:
-                    print('Random step {}'.format(position_list[r_idx]))
-                return position_list[r_idx]
+        if sum(sum(game_board.base_board == 0)) > 59:
+            rand_flag = True
+        if rand_flag:
+            r_idx = random.randint(0, (len(position_list) - 1))
+            if self.verbose:
+                print('Random step {}'.format(position_list[r_idx]))
+            return position_list[r_idx]
         score_list = self.predict_score(game_board.base_board, position_list)
         if self.verbose:
             print(score_list, end='')
