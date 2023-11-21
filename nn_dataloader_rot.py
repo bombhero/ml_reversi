@@ -137,9 +137,9 @@ def remove_old_examples(remained, data_path=default_data_path):
     file_list = os.listdir(data_path)
     file_list.sort(reverse=True)
     if len(file_list) > remained:
+        print('Removing {} old files...'.format(len(file_list) - remained))
         for filename in file_list[remained:]:
             full_path = data_path + '/' + filename
-            print('Remove {}'.format(full_path))
             os.remove(full_path)
 
 

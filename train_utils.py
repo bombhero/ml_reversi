@@ -20,7 +20,7 @@ class TrainParam:
         else:
             self.record_path = train_record_path
         self.color_list = [-1, 1]
-        self.round_count = 100
+        self.round_count = 10000
         self.model_label = 'players'
         self.model_sub_path = '/{}_model'.format(self.model_label)
         self.model_backup_path = '/{}_backup'.format(self.model_label)

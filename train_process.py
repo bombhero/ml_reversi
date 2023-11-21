@@ -8,7 +8,8 @@ from train_model_s import train_model
 
 def main():
     train_param = TrainParam()
-    for idx in range(int(train_param.round_count/10)):
+    for idx in range(20):
+        print('--------------------------------------------------- Train Round {}'.format(idx))
         train_game_play(train_param)
         duplicate_example_checking(data_path=(train_param.examples_path + train_param.examples_sub_path))
         remove_old_examples(int(train_param.round_count * 1.2),

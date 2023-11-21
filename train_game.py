@@ -107,16 +107,19 @@ def train_game_play(train_param):
     model_file = train_param.models_path + train_param.model_sub_path + '/' + train_param.model_filename
     game_path = train_param.examples_path + train_param.examples_sub_path
     if not os.path.exists(model_file):
+        print('Random vs Random')
         player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1], verbose=False),
                        RandomPlayer('Dice', train_param.color_list[1], train_param.color_list[0], verbose=False)]
         round_count = int(train_param.round_count * 1.2)
     else:
         r_value = random.randint(0, 1)
         if r_value == 0:
-            player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1]),
+            print('Calc vs AI')
+            player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
                            AIPlayerS('NNSeven', train_param.color_list[1], train_param.color_list[0],
                                      model_file_path=model_file, train_mode=True, verbose=False)]
         else:
+            print('AI vs AI')
             player_list = [AIPlayerS('NNSeven', train_param.color_list[0], train_param.color_list[1],
                                      model_file_path=model_file, train_mode=True, verbose=False),
                            AIPlayerS('NNSeven', train_param.color_list[1], train_param.color_list[0],
