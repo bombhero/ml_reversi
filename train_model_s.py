@@ -26,8 +26,10 @@ class NetTrain:
         if os.path.exists(self.model_file):
             print('Reload {}'.format(self.model_file))
             self.model = torch.load(self.model_file).to(self.calc_device)
+            self.reload = True
         else:
             self.model = ReversiCriticNetS().to(self.calc_device)
+            self.reload = False
         self.backup_model = None
         self.example_file_count = train_param.round_count
         self.examples_full_path = train_param.examples_path + train_param.examples_sub_path
@@ -35,6 +37,10 @@ class NetTrain:
 
     def train(self, epoch):
         loss_record = []
+        if self.reload:
+            start_save_round = 5
+        else:
+            start_save_round = 10
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(self.example_file_count, self.examples_full_path)
@@ -58,7 +64,7 @@ class NetTrain:
             end_ts = time.time()
             print('Epoch {}: Spent {:.2f}sec, loss = {}'.format(e, (end_ts - start_ts), current_loss))
             loss_record.append(current_loss)
-            if len(loss_record) > 5:
+            if len(loss_record) > start_save_round:
                 del loss_record[0]
                 if current_loss > (sum(loss_record) / len(loss_record)):
                     print('Current loss({}) is higher than ave loss({})'.format(current_loss,
