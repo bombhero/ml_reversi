@@ -65,9 +65,9 @@ def execute_battle(battle_param):
             model_file_0 = battle_param.nn_path + '/' + model_list[current_idx] + '/' + battle_param.model_filename
             model_file_1 = battle_param.nn_path + '/' + model_list[oppo_idx] + '/' + battle_param.model_filename
             player_list = [AIPlayerS(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
-                                     model_file_path=model_file_0, train_mode=True, verbose=False),
+                                     model_file_path=model_file_0, train_mode=False, verbose=False),
                            AIPlayerS(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
-                                     model_file_path=model_file_1, train_mode=True, verbose=False)]
+                                     model_file_path=model_file_1, train_mode=False, verbose=False)]
             start_ts = time.time()
             for i in range(10):
                 if i % 2 == 1:
@@ -104,7 +104,7 @@ def main():
     battle_param.nn_path = root_path + '/models/players_backup'
     battle_param.nn_label = 'players'
     battle_param.battle_path = root_path + '/battle_record'
-    battle_param.game_record_path = root_path + '/game_record'
+    battle_param.game_record_path = root_path + '/examples/battle_data'
     if not os.path.exists(battle_param.battle_path):
         os.makedirs(battle_param.battle_path)
     execute_battle(battle_param)

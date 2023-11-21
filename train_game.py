@@ -116,13 +116,13 @@ def train_game_play(train_param):
         if r_value == 0:
             print('Calc vs AI')
             player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
-                           AIPlayerS('NNSeven', train_param.color_list[1], train_param.color_list[0],
+                           AIPlayerS('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                      model_file_path=model_file, train_mode=True, verbose=False)]
         else:
             print('AI vs AI')
-            player_list = [AIPlayerS('NNSeven', train_param.color_list[0], train_param.color_list[1],
+            player_list = [AIPlayerS('NNTrainer', train_param.color_list[0], train_param.color_list[1],
                                      model_file_path=model_file, train_mode=True, verbose=False),
-                           AIPlayerS('NNSeven', train_param.color_list[1], train_param.color_list[0],
+                           AIPlayerS('NNTeacher', train_param.color_list[1], train_param.color_list[0],
                                      model_file_path=model_file, train_mode=True, verbose=False)]
         round_count = int(train_param.round_count * 0.1)
     start_ts = time.time()
