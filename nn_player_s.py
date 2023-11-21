@@ -5,7 +5,7 @@ import torch
 import __main__
 from comm_utils import model_path
 
-cnn_model_path = model_path + '/' + 'playerj'
+cnn_model_path = model_path + '/' + 'players'
 critic_model_file = 'model_critic.pkl'
 
 

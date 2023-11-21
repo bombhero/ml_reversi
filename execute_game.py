@@ -17,8 +17,8 @@ from comm_utils import model_path
 
 # game_path = example_path + '/random_v_random'
 # game_path = example_path + '/random_v_ai'
-# game_path = example_path + '/ai_v_ai'
-default_game_path = example_path + '/training_data'
+default_game_path = example_path + '/ai_v_ai'
+# default_game_path = example_path + '/training_data'
 backup_model = model_path + '/cnn_backup/model_critic.pkl'
 jay_model = model_path + '/playerj_backup_20231107/model_critic.pkl'
 jump_model = model_path + '/playerj_backup_20231110/model_critic.pkl'
