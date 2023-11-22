@@ -65,7 +65,8 @@ class NetTrain:
             print('Epoch {}: Spent {:.2f}sec, loss = {}'.format(e, (end_ts - start_ts), current_loss))
             loss_record.append(current_loss)
             if len(loss_record) > start_save_round:
-                del loss_record[0]
+                if len(loss_record) > 10:
+                    del loss_record[0]
                 if current_loss > (sum(loss_record) / len(loss_record)):
                     print('Current loss({}) is higher than ave loss({})'.format(current_loss,
                                                                                 (sum(loss_record) / len(loss_record))))
