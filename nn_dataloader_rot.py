@@ -127,7 +127,7 @@ def duplicate_example_checking(remove_dup=False, data_path=default_data_path):
     print('')
     remove_count = 0
     for file_path in dup_list:
-        print('Remove {}'.format(file_path))
+        # print('Remove {}'.format(file_path))
         os.remove(file_path)
         remove_count += 1
     print('Remained {}, Removed {}'.format(len(md5_dict), remove_count))

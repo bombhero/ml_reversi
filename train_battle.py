@@ -96,10 +96,12 @@ def execute_battle(battle_param):
     dt = datetime.datetime.now()
     result_file_path = '{}/battle_result_{}.csv'.format(battle_param.battle_path, dt.strftime('%Y%m%d%H%M%S'))
     df.to_csv(path_or_buf=result_file_path, sep=',', float_format='%.0f')
+    return result_file_path
 
 
-def main():
-    root_path = 'c:/bomb/proj/ml_reversi_train'
+def run_battle(root_path=None):
+    if root_path is None:
+        root_path = 'c:/bomb/proj/ml_reversi_train'
     battle_param = BattleParam()
     battle_param.nn_path = root_path + '/models/players_backup'
     battle_param.nn_label = 'players'
@@ -107,8 +109,8 @@ def main():
     battle_param.game_record_path = root_path + '/examples/battle_data'
     if not os.path.exists(battle_param.battle_path):
         os.makedirs(battle_param.battle_path)
-    execute_battle(battle_param)
+    return execute_battle(battle_param)
 
 
 if __name__ == '__main__':
-    main()
+    run_battle()

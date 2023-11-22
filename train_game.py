@@ -114,10 +114,17 @@ def train_game_play(train_param):
     else:
         r_value = random.randint(0, 1)
         if r_value == 0:
-            print('Calc vs AI')
-            player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
-                           AIPlayerS('NNTrain', train_param.color_list[1], train_param.color_list[0],
-                                     model_file_path=model_file, train_mode=True, verbose=False)]
+            if random.random() > 0.5:
+                print('Calc vs AI')
+                player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
+                               AIPlayerS('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                                         model_file_path=model_file, train_mode=True, verbose=False)]
+            else:
+                print('Random vs AI')
+                player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1],
+                                            verbose=False),
+                               AIPlayerS('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                                         model_file_path=model_file, train_mode=True, verbose=False)]
         else:
             print('AI vs AI')
             player_list = [AIPlayerS('NNTrainer', train_param.color_list[0], train_param.color_list[1],
