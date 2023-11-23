@@ -8,6 +8,7 @@ import time
 import pandas as pd
 from train_game import ExecuteReversi
 from nn_player_s import AIPlayerS
+from train_utils import train_root_path
 
 
 class BattleParam:
@@ -89,10 +90,11 @@ def execute_battle(battle_param):
                         tmp_df = pd.DataFrame(new_line[j], index=[0])
                         df = pd.concat((df, tmp_df), ignore_index=True)
                 end_ts = time.time()
-                print('{} vs {} Round {} Spent {:.2f}'.format(model_list[current_idx], model_list[oppo_idx],
-                                                              i, (end_ts - start_ts)),
+                print('{:0>3d}:{:0>3d} {} vs {} Round {} Spent {:.2f}'.
+                      format(current_idx, oppo_idx, model_list[current_idx], model_list[oppo_idx], i,
+                             (end_ts - start_ts)),
                       end='\r')
-            print('')
+    print('')
     dt = datetime.datetime.now()
     result_file_path = '{}/battle_result_{}.csv'.format(battle_param.battle_path, dt.strftime('%Y%m%d%H%M%S'))
     df.to_csv(path_or_buf=result_file_path, sep=',', float_format='%.0f')
@@ -101,7 +103,7 @@ def execute_battle(battle_param):
 
 def run_battle(root_path=None):
     if root_path is None:
-        root_path = 'c:/bomb/proj/ml_reversi_train'
+        root_path = train_root_path
     battle_param = BattleParam()
     battle_param.nn_path = root_path + '/models/players_backup'
     battle_param.nn_label = 'players'
