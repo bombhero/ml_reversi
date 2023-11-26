@@ -7,7 +7,7 @@ import datetime
 import time
 import pandas as pd
 from train_game import ExecuteReversi
-from nn_player_s import AIPlayerS
+from nn_player_h import AIPlayerH
 from train_utils import train_root_path
 
 
@@ -16,7 +16,7 @@ class BattleParam:
         self.battle_path = None
         self.nn_path = None
         self.nn_label = None
-        self.model_filename = 'players_model.pkl'
+        self.model_filename = 'playerh_model.pkl'
         self.color_list = [-1, 1]
 
 
@@ -65,9 +65,9 @@ def execute_battle(battle_param):
         for oppo_idx in range(current_idx+1, len(model_list)):
             model_file_0 = battle_param.nn_path + '/' + model_list[current_idx] + '/' + battle_param.model_filename
             model_file_1 = battle_param.nn_path + '/' + model_list[oppo_idx] + '/' + battle_param.model_filename
-            player_list = [AIPlayerS(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
+            player_list = [AIPlayerH(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
                                      model_file_path=model_file_0, train_mode=False, verbose=False),
-                           AIPlayerS(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
+                           AIPlayerH(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
                                      model_file_path=model_file_1, train_mode=False, verbose=False)]
             start_ts = time.time()
             for i in range(10):
@@ -105,8 +105,8 @@ def run_battle(root_path=None):
     if root_path is None:
         root_path = train_root_path
     battle_param = BattleParam()
-    battle_param.nn_path = root_path + '/models/players_backup'
-    battle_param.nn_label = 'players'
+    battle_param.nn_path = root_path + '/models/playerh_backup'
+    battle_param.nn_label = 'playerh'
     battle_param.battle_path = root_path + '/battle_record'
     battle_param.game_record_path = root_path + '/examples/battle_data'
     if not os.path.exists(battle_param.battle_path):

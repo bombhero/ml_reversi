@@ -12,7 +12,7 @@ class CalcPlayer:
         self.result = None
         self.verbose = verbose
 
-    def get_action(self, game_board, position_list):
+    def get_action(self, game_board, position_list, deep_analysis=True):
         max_count = 0
         final_position = []
         for position in position_list:

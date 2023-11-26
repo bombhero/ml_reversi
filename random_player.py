@@ -11,7 +11,7 @@ class RandomPlayer:
         self.result = None
         self.verbose = verbose
 
-    def get_action(self, game_board, position_list):
+    def get_action(self, game_board, position_list, deep_analysis=True):
         idx = random.randint(0, len(position_list)-1)
         if self.verbose:
             print('Term to {}({}): '.format(self.player_name, game_board.color_dict[self.color]), end='')

@@ -7,9 +7,10 @@ import time
 from reversi import ReversiGame
 from human_player import HumanPlayer
 from random_player import RandomPlayer
-from nn_player import AIPlayer
-from nn_player_j import AIPlayerJ
-from nn_player_s import AIPlayerS
+# from nn_player import AIPlayer
+# from nn_player_j import AIPlayerJ
+# from nn_player_s import AIPlayerS
+from nn_player_h import AIPlayerH
 from calc_player import CalcPlayer
 from train_utils import TrainParam
 
@@ -53,7 +54,8 @@ class ExecuteReversi:
             new_row = self.reversi_game.gb.base_board.reshape([1, int(self.reversi_game.side_length ** 2)])
             new_row = np.concatenate((new_row, np.array([[self.player_list[side_id].color]])), axis=1)
             while True:
-                position = self.player_list[side_id].get_action(self.reversi_game.gb, position_list)
+                position = self.player_list[side_id].get_action(self.reversi_game.gb, position_list,
+                                                                deep_analysis=False)
                 ret = self.reversi_game.step(position, self.player_list[side_id].color, show=self.show)
                 if ret == 0:
                     position_id = position[0] * self.reversi_game.side_length + position[1]
@@ -117,19 +119,19 @@ def train_game_play(train_param):
             if random.random() > 0.5:
                 print('Calc vs AI')
                 player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
-                               AIPlayerS('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                               AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
             else:
                 print('Random vs AI')
                 player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1],
                                             verbose=False),
-                               AIPlayerS('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                               AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
         else:
             print('AI vs AI')
-            player_list = [AIPlayerS('NNTrainer', train_param.color_list[0], train_param.color_list[1],
+            player_list = [AIPlayerH('NNTrainer', train_param.color_list[0], train_param.color_list[1],
                                      model_file_path=model_file, train_mode=True, verbose=False),
-                           AIPlayerS('NNTeacher', train_param.color_list[1], train_param.color_list[0],
+                           AIPlayerH('NNTeacher', train_param.color_list[1], train_param.color_list[0],
                                      model_file_path=model_file, train_mode=True, verbose=False)]
         round_count = int(train_param.round_count * 0.1)
     start_ts = time.time()
