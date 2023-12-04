@@ -91,9 +91,7 @@ def read_all_files(file_count, data_path=default_data_path):
         middle_ts = time.time()
         print('load {:.4f}, '.format(middle_ts-start_ts), end='')
         if new_x is None:
-            # print(' Both winner. Skip it.')
             continue
-        # print(' Got {}'.format(new_x.shape[0]))
 
         current_len = new_y.shape[0]
         enhance_x[total_row:(total_row+current_len), :, :, :] = new_x
@@ -117,20 +115,20 @@ def duplicate_example_checking(remove_dup=False, data_path=default_data_path):
         with open(file_path, 'rb') as f:
             md5 = hashlib.md5(f.read()).hexdigest()
             if md5 in list(md5_dict.keys()):
-                if remove_dup:
-                    dup_list.append(file_path)
-                else:
-                    print('Duplicate {}'.format(filename))
-                    md5_dict[md5].append(filename)
+                dup_list.append(file_path)
+                md5_dict[md5].append(filename)
             else:
                 md5_dict[md5] = [filename]
     print('')
-    remove_count = 0
-    for file_path in dup_list:
-        # print('Remove {}'.format(file_path))
-        os.remove(file_path)
-        remove_count += 1
-    print('Remained {}, Removed {}'.format(len(md5_dict), remove_count))
+    if remove_dup:
+        remove_count = 0
+        for file_path in dup_list:
+            # print('Remove {}'.format(file_path))
+            os.remove(file_path)
+            remove_count += 1
+        print('Remained {}, Removed {}'.format(len(md5_dict), remove_count))
+    else:
+        print('Remained {}, Duplicate {}'.format(len(md5_dict), len(dup_list)))
 
 
 def remove_old_examples(remained, data_path=default_data_path):

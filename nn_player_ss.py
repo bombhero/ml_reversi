@@ -183,9 +183,11 @@ class AIPlayerSS:
             score_list.append(data_y)
         return score_list
 
-    def deep_analysis(self, game_board, position_list):
+    def deep_analysis(self, game_board, position_list, timeout=6):
+        start_ts = time.time()
         score_list = []
-        for first_position in position_list:
+        for idx in range(len(position_list)):
+            first_position = position_list[idx]
             emulate_game = EmulateGame(game_board, [self.color, self.oppo_color])
             emulate_game.step(self.color, first_position)
             no_option_count = 0
@@ -205,6 +207,9 @@ class AIPlayerSS:
                 emulate_game.step(player_list[current_id].color, position)
                 current_id = (current_id + 1) % 2
             score_list.append(sum(sum(emulate_game.gb.base_board == self.color)))
+            spent_time = time.time() - start_ts
+            if (timeout - spent_time) < (spent_time / (idx+1.0)):
+                break
         return score_list
 
     @staticmethod
@@ -217,6 +222,21 @@ class AIPlayerSS:
                     sorted_position_list.append(position_list[position_idx])
                     break
         return sorted_position_list
+
+    def random_step(self, board, position_list):
+        if random.random() > 0.7:
+            r_idx = random.randint(0, len(position_list)-1)
+            print('Full random step {}'.format(position_list))
+        else:
+            pre_score = self.predict_score(board, position_list)
+            position_list = self.sort_position_by_score(position_list, pre_score)
+            if len(position_list) >= 4:
+                length = int(len(position_list) / 2)
+            else:
+                length = len(position_list)
+            r_idx = random.randint(0, length-1)
+            print('Half random step {}'.format(position_list[r_idx]))
+        return position_list[r_idx]
 
     def get_action(self, game_board, position_list, deep_analysis=True, verbose=True):
         start_ts = time.time()
@@ -233,21 +253,18 @@ class AIPlayerSS:
         if sum(sum(game_board.base_board == 0)) > 59:
             rand_flag = True
         if rand_flag:
-            r_idx = random.randint(0, (len(position_list) - 1))
-            if self.verbose and verbose:
-                print('Random step {}'.format(position_list[r_idx]))
-            return position_list[r_idx]
+            return self.random_step(game_board.base_board, position_list)
         if deep_analysis:
-            max_limit = int(300 / sum(sum(game_board.base_board == 0)))
-            if self.deep_all or (len(position_list) <= max_limit):
-                score_list = self.deep_analysis(game_board, position_list)
+            org_len = len(position_list)
+            pre_scores = self.predict_score(game_board.base_board, position_list)
+            position_list = self.sort_position_by_score(position_list, pre_scores)
+            if self.deep_all:
+                timeout = 1000
             else:
-                org_len = len(position_list)
-                pre_scores = self.predict_score(game_board.base_board, position_list)
-                position_list = self.sort_position_by_score(position_list, pre_scores)
-                score_list = self.deep_analysis(game_board, position_list[:max_limit])
-                if self.verbose and verbose:
-                    print('{} --> {}'.format(org_len, max_limit), end='')
+                timeout = 6
+            score_list = self.deep_analysis(game_board, position_list, timeout=timeout)
+            if self.verbose and verbose:
+                print('{} --> {}'.format(org_len, len(score_list)), end='')
         else:
             score_list = self.predict_score(game_board.base_board, position_list)
         if self.verbose and verbose:
