@@ -230,7 +230,8 @@ class AIPlayerH:
     def random_step(self, board, position_list):
         if random.random() > 0.7:
             r_idx = random.randint(0, len(position_list)-1)
-            print('Full random step {}'.format(position_list))
+            if self.verbose:
+                print('Full random step {}'.format(position_list))
         else:
             pre_score = self.predict_score(board, position_list)
             position_list = self.sort_position_by_score(position_list, pre_score)
@@ -239,7 +240,8 @@ class AIPlayerH:
             else:
                 length = len(position_list)
             r_idx = random.randint(0, length-1)
-            print('Half random step {}'.format(position_list[r_idx]))
+            if self.verbose:
+                print('Half random step {}'.format(position_list[r_idx]))
         return position_list[r_idx]
 
     def get_action(self, game_board, position_list, deep_analysis=True, verbose=True):

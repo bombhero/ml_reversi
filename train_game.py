@@ -7,6 +7,7 @@ import time
 from reversi import ReversiGame
 from human_player import HumanPlayer
 from random_player import RandomPlayer
+from mobility_player import MobilityPlayer
 # from nn_player import AIPlayer
 # from nn_player_j import AIPlayerJ
 # from nn_player_s import AIPlayerS
@@ -116,15 +117,22 @@ def train_game_play(train_param):
     else:
         r_value = random.randint(0, 1)
         if r_value == 0:
-            if random.random() > 0.5:
+            second_r_value = random.random()
+            if second_r_value > 0.8:
+                print('Random vs AI')
+                player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1],
+                                            verbose=False),
+                               AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                                         model_file_path=model_file, train_mode=True, verbose=False)]
+            elif second_r_value > 0.4:
                 print('Calc vs AI')
                 player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
                                AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
             else:
-                print('Random vs AI')
-                player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1],
-                                            verbose=False),
+                print('Mobility vs AI')
+                player_list = [MobilityPlayer('Mobility', train_param.color_list[0], train_param.color_list[1],
+                                              verbose=False),
                                AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
         else:

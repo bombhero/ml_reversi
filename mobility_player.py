@@ -11,14 +11,17 @@ class MobilityPlayer:
         self.position_list = []
         self.result = None
         self.verbose = verbose
+        self.direct_list = [[-1, -1], [1, 1], [0, -1], [0, 1], [-1, 0], [1, 0], [-1, 1], [1, -1]]
 
     def get_action(self, game_board, position_list, deep_analysis=True):
         min_count = 64
         final_position = []
         for position in position_list:
             count = self.predict_result(game_board.base_board, position)
+            if count < 0:
+                continue
             if count < min_count:
-                max_count = count
+                min_count = count
                 final_position = [position]
             elif count == min_count:
                 final_position.append(position)
@@ -39,38 +42,58 @@ class MobilityPlayer:
         else:
             return False
 
-    def predict_result(self, base_board, position):
-        direct_list = [[-1, -1], [1, 1], [0, -1], [0, 1], [-1, 0], [1, 0], [-1, 1], [1, -1]]
+    def _is_legal_position(self, base_board, position, color, oppo_color, need_full=False):
         if base_board[position[0]][position[1]] != 0:
-            return 0
+            return False
 
         # Legal checking
-        is_legal = [False for _ in range(len(direct_list))]
-        current_board = copy.copy(base_board)
-        for idx in range(len(direct_list)):
+        is_legal = [False for _ in range(len(self.direct_list))]
+        for idx in range(len(self.direct_list)):
             for i in range(1, 8, 1):
-                check_position = [position[d] + direct_list[idx][d] * i for d in range(2)]
+                check_position = [position[d] + self.direct_list[idx][d] * i for d in range(2)]
                 if not self._is_in_board(check_position):
                     break
 
-                if (i == 1) and (current_board[check_position[0]][check_position[1]] != self.oppo_color):
+                if (i == 1) and (base_board[check_position[0]][check_position[1]] != oppo_color):
                     break
 
-                if current_board[check_position[0]][check_position[1]] == 0:
+                if base_board[check_position[0]][check_position[1]] == 0:
                     break
 
-                if current_board[check_position[0]][check_position[1]] == self.color:
+                if base_board[check_position[0]][check_position[1]] == color:
                     is_legal[idx] = True
                     break
 
-            if is_legal[idx]:
-                current_board[position[0]][position[1]] = self.color
+            if is_legal[idx] and need_full:
+                base_board[position[0]][position[1]] = color
                 for i in range(1, 8, 1):
-                    full_position = [position[d] + direct_list[idx][d] * i for d in range(2)]
-                    if current_board[full_position[0]][full_position[1]] == self.oppo_color:
-                        current_board[full_position[0]][full_position[1]] = self.color
+                    full_position = [position[d] + self.direct_list[idx][d] * i for d in range(2)]
+                    if base_board[full_position[0]][full_position[1]] == oppo_color:
+                        base_board[full_position[0]][full_position[1]] = color
                     else:
                         break
 
-        return sum(sum(current_board == self.oppo_color))
+        return sum(is_legal) > 0
+
+    def detect_position(self, base_board, color, oppo_color):
+        position_list = []
+        for row_idx in range(8):
+            for col_idx in range(8):
+                if base_board[row_idx][col_idx] != 0:
+                    continue
+                if self._is_legal_position(base_board, [row_idx, col_idx], color, oppo_color):
+                    position_list.append([row_idx, col_idx])
+        return position_list
+
+    def predict_result(self, base_board, position):
+        if base_board[position[0]][position[1]] != 0:
+            return -1
+
+        # Legal checking
+        current_board = copy.copy(base_board)
+        if self._is_legal_position(current_board, position, self.color, self.oppo_color, need_full=True):
+            position_list = self.detect_position(current_board, self.oppo_color, self.color)
+            return len(position_list)
+        else:
+            return -1
 
