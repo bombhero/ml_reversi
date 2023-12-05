@@ -226,7 +226,8 @@ class AIPlayerSS:
     def random_step(self, board, position_list):
         if random.random() > 0.7:
             r_idx = random.randint(0, len(position_list)-1)
-            print('Full random step {}'.format(position_list))
+            if self.verbose:
+                print('Full random step {}'.format(position_list))
         else:
             pre_score = self.predict_score(board, position_list)
             position_list = self.sort_position_by_score(position_list, pre_score)
@@ -235,13 +236,27 @@ class AIPlayerSS:
             else:
                 length = len(position_list)
             r_idx = random.randint(0, length-1)
-            print('Half random step {}'.format(position_list[r_idx]))
+            if self.verbose:
+                print('Half random step {}'.format(position_list[r_idx]))
         return position_list[r_idx]
+
+    @staticmethod
+    def check_highest_position(position_list):
+        highest_position_list = [[0, 0], [0, 7], [7, 0], [7, 7]]
+        for highest_position in highest_position_list:
+            if highest_position in position_list:
+                return highest_position
+        return None
 
     def get_action(self, game_board, position_list, deep_analysis=True, verbose=True):
         start_ts = time.time()
         max_idx = 0
         rand_flag = False
+        position = self.check_highest_position(position_list)
+        if position is not None:
+            if self.verbose and verbose:
+                print('Highest step: {}'.format(position))
+            return position
         if len(position_list) == 1:
             if self.verbose and verbose:
                 print('Only Step: {}'.format(position_list[0]))

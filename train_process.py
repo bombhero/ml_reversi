@@ -13,7 +13,7 @@ def main():
     for idx in range(20):
         print('--------------------------------------------------- Train Round {}'.format(idx))
         train_game_play(train_param)
-        duplicate_example_checking(remove_dup=True,
+        duplicate_example_checking(remove_dup=False,
                                    data_path=(train_param.examples_path + train_param.examples_sub_path))
         remove_old_examples(int(train_param.round_count * 1.2),
                             data_path=(train_param.examples_path + train_param.examples_sub_path))

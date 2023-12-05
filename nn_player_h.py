@@ -244,16 +244,29 @@ class AIPlayerH:
                 print('Half random step {}'.format(position_list[r_idx]))
         return position_list[r_idx]
 
+    @staticmethod
+    def check_highest_position(position_list):
+        highest_position_list = [[0, 0], [0, 7], [7, 0], [7, 7]]
+        for highest_position in highest_position_list:
+            if highest_position in position_list:
+                return highest_position
+        return None
+
     def get_action(self, game_board, position_list, deep_analysis=True, verbose=True):
         start_ts = time.time()
         max_idx = 0
         rand_flag = False
+        position = self.check_highest_position(position_list)
+        if position is not None:
+            if self.verbose and verbose:
+                print('Highest step: {}'.format(position))
+            return position
         if len(position_list) == 1:
             if self.verbose and verbose:
                 print('Only Step: {}'.format(position_list[0]))
             return position_list[0]
         if self.train_mode:
-            if sum(sum(game_board.base_board == 0)) > 20:
+            if sum(sum(game_board.base_board == 0)) > 10:
                 if random.random() > 0.7:
                     rand_flag = True
         if sum(sum(game_board.base_board == 0)) > 59:
