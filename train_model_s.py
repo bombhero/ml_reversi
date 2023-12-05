@@ -4,7 +4,6 @@ import torch
 import time
 from train_utils import TrainParam
 from torch.utils.data import DataLoader
-from comm_utils import model_path
 from nn_dataloader_rot import ReversiDataSet
 from nn_player_s import ReversiCriticNetS
 

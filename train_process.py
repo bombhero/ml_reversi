@@ -3,7 +3,7 @@ from train_game import train_game_play
 from train_utils import TrainParam
 from nn_dataloader_rot import duplicate_example_checking
 from nn_dataloader_rot import remove_old_examples
-from train_model_h import train_model
+from train_model_s import train_model
 from train_battle import run_battle
 from train_identify import identify_best_model
 

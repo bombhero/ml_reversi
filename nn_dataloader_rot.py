@@ -105,6 +105,43 @@ def read_all_files(file_count, data_path=default_data_path):
     return enhance_x[:total_row, :, :, :], enhance_y[:total_row]
 
 
+def merge_and_average(x, y):
+    start_ts = time.time()
+    result_x = np.zeros([x.shape[0], 4, 8, 8])
+    result_y = np.zeros([y.shape[0]])
+    total_row = 0
+    result_dict = {}
+    for row_idx in range(x.shape[0]):
+        row_key = x[row_idx].tobytes()
+        if row_key in result_dict.keys():
+            result_dict[row_key]['row'].append(row_idx)
+            result_dict[row_key]['y'].append(y[row_idx])
+        else:
+            result_dict[row_key] = {'row': [row_idx], 'y': [y[row_idx]]}
+        if row_idx % 1000 == 0:
+            end_ts = time.time()
+            print('Analyzing {}, total={}, spent {:.3f}'.format(row_idx, len(result_dict.keys()),
+                                                                (end_ts-start_ts)), end='\r')
+    print('Analyzing {}, total={}, spent {:.3f}'.format(x.shape[0], len(result_dict.keys()), (end_ts - start_ts)))
+    start_ts = time.time()
+    for row_key in list(result_dict.keys()):
+        new_li = result_dict[row_key]['y']
+        if len(new_li) % 2 == 0:
+            left_value = new_li[int(len(new_li) / 2) - 1]
+            right_value = new_li[int(len(new_li) / 2)]
+            new_y = (left_value + right_value) / 2
+        else:
+            new_y = new_li[int(len(new_li) / 2)]
+        result_x[total_row, :] = x[result_dict[row_key]['row'][0], :]
+        result_y[total_row] = new_y
+        total_row += 1
+        if total_row % 1000 == 0:
+            end_ts = time.time()
+            print('Merged {}, spent {:.3f}'.format(total_row, (end_ts-start_ts)), end='\r')
+    print('')
+    return result_x[0:total_row, :], result_y[0:total_row]
+
+
 def duplicate_example_checking(remove_dup=False, data_path=default_data_path):
     file_list = os.listdir(data_path)
     md5_dict = {}
@@ -147,6 +184,7 @@ class ReversiDataSet(Dataset):
             x, y = read_all_files(file_count)
         else:
             x, y = read_all_files(file_count, data_path=examples_path)
+        x, y = merge_and_average(x, y)
         self.data_x = torch.from_numpy(np.float32(x))
         self.data_y = torch.from_numpy(np.float32(y))
 
@@ -158,4 +196,5 @@ class ReversiDataSet(Dataset):
 
 
 if __name__ == '__main__':
-    duplicate_example_checking(remove_dup=True)
+    data_set = ReversiDataSet(file_count=100)
+    print(len(data_set))
