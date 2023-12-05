@@ -122,6 +122,7 @@ def merge_and_average(x, y):
             end_ts = time.time()
             print('Analyzing {}, total={}, spent {:.3f}'.format(row_idx, len(result_dict.keys()),
                                                                 (end_ts-start_ts)), end='\r')
+    end_ts = time.time()
     print('Analyzing {}, total={}, spent {:.3f}'.format(x.shape[0], len(result_dict.keys()), (end_ts - start_ts)))
     start_ts = time.time()
     for row_key in list(result_dict.keys()):
@@ -138,7 +139,8 @@ def merge_and_average(x, y):
         if total_row % 1000 == 0:
             end_ts = time.time()
             print('Merged {}, spent {:.3f}'.format(total_row, (end_ts-start_ts)), end='\r')
-    print('')
+    end_ts = time.time()
+    print('Merged {}, spent {:.3f}'.format(total_row, (end_ts-start_ts)))
     return result_x[0:total_row, :], result_y[0:total_row]
 
 

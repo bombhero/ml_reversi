@@ -119,18 +119,18 @@ def train_game_play(train_param):
         if r_value == 0:
             second_r_value = random.random()
             if second_r_value > 0.8:
-                print('Random vs AI')
+                print('Random vs AI {:.3f}'.format(second_r_value))
                 player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1],
                                             verbose=False),
                                AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
             elif second_r_value > 0.4:
-                print('Calc vs AI')
+                print('Calc vs AI {:.3f}'.format(second_r_value))
                 player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
                                AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
             else:
-                print('Mobility vs AI')
+                print('Mobility vs AI {:.3f}'.format(second_r_value))
                 player_list = [MobilityPlayer('Mobility', train_param.color_list[0], train_param.color_list[1],
                                               verbose=False),
                                AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
