@@ -266,7 +266,7 @@ class AIPlayerH:
                 print('Only Step: {}'.format(position_list[0]))
             return position_list[0]
         if self.train_mode:
-            if sum(sum(game_board.base_board == 0)) > 10:
+            if sum(sum(game_board.base_board == 0)) > 2:
                 if random.random() > 0.7:
                     rand_flag = True
         if sum(sum(game_board.base_board == 0)) > 59:

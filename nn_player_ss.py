@@ -223,8 +223,11 @@ class AIPlayerSS:
                     break
         return sorted_position_list
 
-    def random_step(self, board, position_list):
-        if random.random() > 0.7:
+    def random_step(self, board, position_list, full_random=False):
+        r_value = random.random()
+        if full_random:
+            r_value = 1
+        if r_value > 0.7:
             r_idx = random.randint(0, len(position_list)-1)
             if self.verbose:
                 print('Full random step {}'.format(position_list))
@@ -252,6 +255,7 @@ class AIPlayerSS:
         start_ts = time.time()
         max_idx = 0
         rand_flag = False
+        full_random = False
         position = self.check_highest_position(position_list)
         if position is not None:
             if self.verbose and verbose:
@@ -267,8 +271,9 @@ class AIPlayerSS:
                     rand_flag = True
         if sum(sum(game_board.base_board == 0)) > 59:
             rand_flag = True
+            full_random = True
         if rand_flag:
-            return self.random_step(game_board.base_board, position_list)
+            return self.random_step(game_board.base_board, position_list, full_random)
         if deep_analysis:
             org_len = len(position_list)
             pre_scores = self.predict_score(game_board.base_board, position_list)

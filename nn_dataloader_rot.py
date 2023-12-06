@@ -84,12 +84,7 @@ def read_all_files(file_count, data_path=default_data_path):
     for idx in idx_list:
         full_path = '{}/{}'.format(data_path, file_list[idx])
         count += 1
-        start_ts = time.time()
-        print('Reading {}, '.format(count), end='')
-        # print('.', end='')
         new_x, new_y = read_one_file(full_path)
-        middle_ts = time.time()
-        print('load {:.4f}, '.format(middle_ts-start_ts), end='')
         if new_x is None:
             continue
 
@@ -97,9 +92,11 @@ def read_all_files(file_count, data_path=default_data_path):
         enhance_x[total_row:(total_row+current_len), :, :, :] = new_x
         enhance_y[total_row:(total_row+current_len)] = new_y
         total_row += current_len
-        end_ts = time.time()
-        print('merge {:.4f}'.format(end_ts-middle_ts), end='\r')
-    print('')
+        if count % 10 == 0:
+            end_ts = time.time()
+            print('Reading {}, spent {:.4f}'.format(count, end_ts-total_start_ts), end='\r')
+    end_ts = time.time()
+    print('Reading {}, spent {:.4f}'.format(count, end_ts - total_start_ts))
     total_end_ts = time.time()
     print('Loaded {} lines. Spent {:.2f} seconds.'.format(total_row, (total_end_ts - total_start_ts)))
     return enhance_x[:total_row, :, :, :], enhance_y[:total_row]

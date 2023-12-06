@@ -17,7 +17,7 @@ class BattleParam:
         self.nn_path = None
         self.nn_label = None
         self.game_record_path = None
-        self.model_filename = 'players_model.pkl'
+        self.model_filename = None
         self.color_list = [-1, 1]
 
 
@@ -106,8 +106,9 @@ def run_battle(root_path=None):
     if root_path is None:
         root_path = train_root_path
     battle_param = BattleParam()
-    battle_param.nn_path = root_path + '/models/playerss_backup'
     battle_param.nn_label = 'playerss'
+    battle_param.model_filename = '{}_model.pkl'.format(battle_param.nn_label)
+    battle_param.nn_path = root_path + '/models/{}_backup'.format(battle_param.nn_label)
     battle_param.battle_path = root_path + '/battle_record'
     battle_param.game_record_path = root_path + '/examples/battle_data'
     if not os.path.exists(battle_param.battle_path):
