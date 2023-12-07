@@ -115,7 +115,7 @@ def train_game_play(train_param):
                        RandomPlayer('Dice', train_param.color_list[1], train_param.color_list[0], verbose=False)]
         round_count = int(train_param.round_count * 1.2)
     else:
-        r_value = random.randint(0, 1)
+        r_value = random.randint(0, 3)
         if r_value == 0:
             second_r_value = random.random()
             if second_r_value > 0.8:

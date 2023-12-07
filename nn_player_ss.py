@@ -227,7 +227,7 @@ class AIPlayerSS:
         r_value = random.random()
         if full_random:
             r_value = 1
-        if r_value > 0.7:
+        if r_value > 0.5:
             r_idx = random.randint(0, len(position_list)-1)
             if self.verbose:
                 print('Full random step {}'.format(position_list))
