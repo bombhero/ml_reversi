@@ -34,7 +34,7 @@ class NetTrain:
         self.example_file_count = train_param.round_count
         self.examples_full_path = train_param.examples_path + train_param.examples_sub_path
         self.model_label = train_param.model_label
-        self.backup_model_list = []
+        self.model_file_list = []
 
     def train(self, epoch):
         loss_record = []
@@ -79,17 +79,17 @@ class NetTrain:
     def save_model(self):
         dt = datetime.datetime.now()
         backup_path = '{}/{}_{}'.format(self.model_backup_folder, self.model_label, dt.strftime('%Y%m%d%H%M%S'))
-        self.backup_model_list.append(backup_path)
+        self.model_file_list.append(backup_path)
         if not os.path.exists(backup_path):
             os.makedirs(backup_path)
         backup_file = '{}/{}'.format(backup_path, self.model_filename)
         torch.save(self.model, self.model_file)
         torch.save(self.model, backup_file)
         print('Save {}, backup {}'.format(self.model_file, backup_file.split('/')[-2]))
-        if len(self.backup_model_list) > 10:
-            print('Remove {}'.format(self.backup_model_list[0]))
-            shutil.rmtree(self.backup_model_list[0])
-            del self.backup_model_list[0]
+        if len(self.model_file_list) > 15:
+            print('Remove {}'.format(self.model_file_list[0].split('/')[-1]))
+            shutil.rmtree(self.model_file_list[0])
+            del self.model_file_list[0]
 
 
 def train_model(train_param):
