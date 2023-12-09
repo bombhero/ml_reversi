@@ -123,7 +123,7 @@ class EmulateGame:
 
 class AIPlayerSS:
     def __init__(self, player_name, color, oppo_color, model_file_path=None, train_mode=False, verbose=False,
-                 shadow=False, deep_all=True):
+                 shadow=False, deep_all=True, timeout=6):
         self.player_name = player_name
         self.color = color
         self.oppo_color = oppo_color
@@ -156,6 +156,7 @@ class AIPlayerSS:
         # If train_mode is true, need to provide some random step
         self.train_mode = train_mode
         self.deep_all = deep_all
+        self.timeout = timeout
 
     def transfer_board(self, board):
         """
@@ -202,7 +203,7 @@ class AIPlayerSS:
                     else:
                         current_id = (current_id + 1) % 2
                         continue
-                position = player_list[current_id].get_action(emulate_game.gb, p_list, deep_analysis=False,
+                position = player_list[current_id].get_action(emulate_game.gb, p_list, emulate_step=True,
                                                               verbose=False)
                 emulate_game.step(player_list[current_id].color, position)
                 current_id = (current_id + 1) % 2
@@ -244,6 +245,33 @@ class AIPlayerSS:
         return position_list[r_idx]
 
     @staticmethod
+    def choice_max_step(position_list, score_list):
+        max_idx = 0
+        for idx in range(1, len(score_list)):
+            if score_list[idx] >= score_list[max_idx]:
+                max_idx = idx
+        return position_list[max_idx]
+
+    def basic_step(self, board, position_list, verbose=False):
+        score_list = self.predict_score(board, position_list)
+        if self.verbose and verbose:
+            print('{}'.format(score_list), end='')
+        return self.choice_max_step(position_list, score_list)
+
+    def deep_analysis_step(self, game_board, position_list, verbose=False):
+        org_len = len(position_list)
+        pre_scores = self.predict_score(game_board.base_board, position_list)
+        position_list = self.sort_position_by_score(position_list, pre_scores)
+        if self.deep_all:
+            timeout = 1000
+        else:
+            timeout = self.timeout
+        score_list = self.deep_analysis(game_board, position_list, timeout=timeout)
+        if self.verbose and verbose:
+            print('{} --> {} {}'.format(org_len, len(score_list), score_list), end='')
+        return self.choice_max_step(position_list, score_list)
+
+    @staticmethod
     def check_highest_position(position_list):
         highest_position_list = [[0, 0], [0, 7], [7, 0], [7, 7]]
         for highest_position in highest_position_list:
@@ -251,9 +279,8 @@ class AIPlayerSS:
                 return highest_position
         return None
 
-    def get_action(self, game_board, position_list, deep_analysis=True, verbose=True):
+    def get_action(self, game_board, position_list, emulate_step=False, deep_analysis=True, verbose=True):
         start_ts = time.time()
-        max_idx = 0
         rand_flag = False
         full_random = False
         position = self.check_highest_position(position_list)
@@ -265,9 +292,14 @@ class AIPlayerSS:
             if self.verbose and verbose:
                 print('Only Step: {}'.format(position_list[0]))
             return position_list[0]
+        if emulate_step:
+            position = self.basic_step(game_board.base_board, position_list, verbose)
+            if self.verbose and verbose:
+                print('Step {}'.format(position))
+            return position
         if self.train_mode:
             if sum(sum(game_board.base_board == 0)) > 2:
-                if random.random() > 0.7:
+                if random.random() > 0.95:
                     rand_flag = True
         if sum(sum(game_board.base_board == 0)) > 59:
             rand_flag = True
@@ -275,27 +307,13 @@ class AIPlayerSS:
         if rand_flag:
             return self.random_step(game_board.base_board, position_list, full_random)
         if deep_analysis:
-            org_len = len(position_list)
-            pre_scores = self.predict_score(game_board.base_board, position_list)
-            position_list = self.sort_position_by_score(position_list, pre_scores)
-            if self.deep_all:
-                timeout = 1000
-            else:
-                timeout = 6
-            score_list = self.deep_analysis(game_board, position_list, timeout=timeout)
-            if self.verbose and verbose:
-                print('{} --> {}'.format(org_len, len(score_list)), end='')
+            position = self.deep_analysis_step(game_board, position_list, verbose)
         else:
-            score_list = self.predict_score(game_board.base_board, position_list)
-        if self.verbose and verbose:
-            print(score_list, end=' ')
-        for idx in range(1, len(score_list)):
-            if score_list[idx] >= score_list[max_idx]:
-                max_idx = idx
+            position = self.basic_step(game_board.base_board, position_list, verbose)
         if self.verbose and verbose:
             end_ts = time.time()
-            print('Step: {} Spent {:.2f}'.format(position_list[max_idx], (end_ts - start_ts)))
-        return position_list[max_idx]
+            print('Step: {} Spent {:.2f}'.format(position, (end_ts - start_ts)))
+        return position
 
 
 if __name__ == '__main__':

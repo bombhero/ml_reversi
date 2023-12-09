@@ -145,9 +145,11 @@ def duplicate_example_checking(remove_dup=False, data_path=default_data_path):
     file_list = os.listdir(data_path)
     md5_dict = {}
     dup_list = []
+    file_count = 0
     for filename in file_list:
+        file_count += 1
         file_path = data_path + '/' + filename
-        print('Reading {}'.format(file_path), end='\r')
+        print('Reading {}/{} {}'.format(file_count, len(file_list), file_path), end='\r')
         with open(file_path, 'rb') as f:
             md5 = hashlib.md5(f.read()).hexdigest()
             if md5 in list(md5_dict.keys()):
@@ -195,5 +197,6 @@ class ReversiDataSet(Dataset):
 
 
 if __name__ == '__main__':
-    data_set = ReversiDataSet(file_count=100)
-    print(len(data_set))
+    duplicate_example_checking(remove_dup=False)
+    # data_set = ReversiDataSet(file_count=100)
+    # print(len(data_set))
