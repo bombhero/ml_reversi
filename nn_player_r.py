@@ -176,7 +176,7 @@ class AIPlayerR:
         else:
             self.model_file = model_file_path
         if torch.cuda.is_available():
-            self.calc_device = torch.device('cpu')
+            self.calc_device = torch.device('cuda')
         else:
             self.calc_device = torch.device('cpu')
         if os.path.exists(self.model_file):
@@ -190,7 +190,7 @@ class AIPlayerR:
             raise Exception('Cannot open {}'.format(self.model_file))
         if not shadow:
             self.emulate_oppo = AIPlayerR('Shadow', oppo_color, color, model_file_path=self.model_file, shadow=True,
-                                           train_mode=train_mode, verbose=verbose)
+                                          train_mode=train_mode, verbose=verbose)
         else:
             self.emulate_oppo = None
         self.verbose = verbose
@@ -244,6 +244,8 @@ class AIPlayerR:
                     else:
                         current_id = (current_id + 1) % 2
                         continue
+                else:
+                    no_option_count = 0
                 position = player_list[current_id].get_action(emulate_game.gb, p_list, emulate_step=True,
                                                               verbose=False)
                 emulate_game.step(player_list[current_id].color, position)

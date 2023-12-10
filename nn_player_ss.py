@@ -203,6 +203,8 @@ class AIPlayerSS:
                     else:
                         current_id = (current_id + 1) % 2
                         continue
+                else:
+                    no_option_count = 0
                 position = player_list[current_id].get_action(emulate_game.gb, p_list, emulate_step=True,
                                                               verbose=False)
                 emulate_game.step(player_list[current_id].color, position)
