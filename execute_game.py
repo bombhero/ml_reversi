@@ -135,7 +135,7 @@ class ExecuteReversi:
             print('{} win, color = {}'.format(self.player_list[1].player_name, self.player_list[1].color))
             return self.player_list[1].color, (self.player_list[1].result - self.player_list[0].result)
         else:
-            print('Both win.')
+            print('Draw.')
             return 0, 0
 
     def save_record(self):
@@ -164,7 +164,7 @@ def main():
         elif exe_reversi.player_list[0].result < exe_reversi.player_list[1].result:
             result['winner'] = exe_reversi.player_list[1].player_name
         else:
-            result['winner'] = 'Both'
+            result['winner'] = 'Draw'
         if result['winner'] not in list(game_summary.keys()):
             game_summary[result['winner']] = 1
         else:
