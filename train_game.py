@@ -29,7 +29,7 @@ class ExecuteReversi:
         self.show = False
         self.game_path = game_path
 
-    def execute(self):
+    def execute(self, deep_analysis=False):
         skip_count = 0
         self.reversi_game.prepare_game()
         if self.show:
@@ -56,7 +56,7 @@ class ExecuteReversi:
             new_row = np.concatenate((new_row, np.array([[self.player_list[side_id].color]])), axis=1)
             while True:
                 position = self.player_list[side_id].get_action(self.reversi_game.gb, position_list,
-                                                                deep_analysis=False)
+                                                                deep_analysis=deep_analysis)
                 ret = self.reversi_game.step(position, self.player_list[side_id].color, show=self.show)
                 if ret == 0:
                     position_id = position[0] * self.reversi_game.side_length + position[1]
