@@ -106,7 +106,7 @@ def run_battle(root_path=None):
     if root_path is None:
         root_path = train_root_path
     battle_param = BattleParam()
-    battle_param.nn_label = 'playerR'
+    battle_param.nn_label = 'playerW'
     battle_param.model_filename = '{}_model.pkl'.format(battle_param.nn_label)
     battle_param.nn_path = root_path + '/models/{}_backup'.format(battle_param.nn_label)
     battle_param.battle_path = root_path + '/battle_record'

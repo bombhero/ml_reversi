@@ -21,7 +21,7 @@ class TrainParam:
             self.record_path = train_record_path
         self.color_list = [-1, 1]
         self.round_count = 20000
-        self.model_label = 'playerR'
+        self.model_label = 'playerW'
         self.model_sub_path = '/{}_model'.format(self.model_label)
         self.model_backup_path = '/{}_backup'.format(self.model_label)
         self.examples_sub_path = '/training_data'

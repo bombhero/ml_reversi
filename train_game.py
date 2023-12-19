@@ -8,10 +8,12 @@ from reversi import ReversiGame
 from human_player import HumanPlayer
 from random_player import RandomPlayer
 from mobility_player import MobilityPlayer
+from stable_player import StablePlayer
 # from nn_player import AIPlayer
 # from nn_player_j import AIPlayerJ
 # from nn_player_s import AIPlayerS
-from nn_player_h import AIPlayerH
+# from nn_player_h import AIPlayerH
+from nn_player_r import AIPlayerR
 from calc_player import CalcPlayer
 from train_utils import TrainParam
 
@@ -118,28 +120,34 @@ def train_game_play(train_param):
         r_value = random.randint(0, 3)
         if r_value == 0:
             second_r_value = random.random()
-            if second_r_value > 0.8:
+            if second_r_value > 0.95:
                 print('Random vs AI {:.3f}'.format(second_r_value))
                 player_list = [RandomPlayer('Random', train_param.color_list[0], train_param.color_list[1],
                                             verbose=False),
-                               AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                               AIPlayerR('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
-            elif second_r_value > 0.4:
+            elif second_r_value > 0.8:
                 print('Calc vs AI {:.3f}'.format(second_r_value))
                 player_list = [CalcPlayer('Calc', train_param.color_list[0], train_param.color_list[1], verbose=False),
-                               AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                               AIPlayerR('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
-            else:
+            elif second_r_value > 0.5:
                 print('Mobility vs AI {:.3f}'.format(second_r_value))
                 player_list = [MobilityPlayer('Mobility', train_param.color_list[0], train_param.color_list[1],
                                               verbose=False),
-                               AIPlayerH('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                               AIPlayerR('NNTrain', train_param.color_list[1], train_param.color_list[0],
+                                         model_file_path=model_file, train_mode=True, verbose=False)]
+            else:
+                print('Stable vs AI {:.3f}'.format(second_r_value))
+                player_list = [StablePlayer('Stable', train_param.color_list[0], train_param.color_list[1],
+                                            verbose=False),
+                               AIPlayerR('NNTrain', train_param.color_list[1], train_param.color_list[0],
                                          model_file_path=model_file, train_mode=True, verbose=False)]
         else:
             print('AI vs AI')
-            player_list = [AIPlayerH('NNTrainer', train_param.color_list[0], train_param.color_list[1],
+            player_list = [AIPlayerR('NNTrainer', train_param.color_list[0], train_param.color_list[1],
                                      model_file_path=model_file, train_mode=True, verbose=False),
-                           AIPlayerH('NNTeacher', train_param.color_list[1], train_param.color_list[0],
+                           AIPlayerR('NNTeacher', train_param.color_list[1], train_param.color_list[0],
                                      model_file_path=model_file, train_mode=True, verbose=False)]
         round_count = int(train_param.round_count * 0.1)
     start_ts = time.time()

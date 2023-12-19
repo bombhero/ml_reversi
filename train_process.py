@@ -10,8 +10,9 @@ from train_identify import identify_best_model
 
 def main():
     train_param = TrainParam()
-    for idx in range(20):
-        print('--------------------------------------------------- Train Round {}'.format(idx))
+    total_round = 20
+    for idx in range(total_round):
+        print('--------------------------------------------------- Train Round {}/{}'.format(idx, total_round))
         train_game_play(train_param)
         # duplicate_example_checking(remove_dup=False,
         #                            data_path=(train_param.examples_path + train_param.examples_sub_path))
