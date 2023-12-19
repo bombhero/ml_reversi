@@ -7,7 +7,7 @@ import datetime
 import time
 import pandas as pd
 from train_game import ExecuteReversi
-from nn_player_ss import AIPlayerSS
+from nn_player_r import AIPlayerR
 from train_utils import train_root_path
 
 
@@ -66,9 +66,9 @@ def execute_battle(battle_param):
         for oppo_idx in range(current_idx+1, len(model_list)):
             model_file_0 = battle_param.nn_path + '/' + model_list[current_idx] + '/' + battle_param.model_filename
             model_file_1 = battle_param.nn_path + '/' + model_list[oppo_idx] + '/' + battle_param.model_filename
-            player_list = [AIPlayerSS(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
+            player_list = [AIPlayerR(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
                                       model_file_path=model_file_0, train_mode=False, verbose=False),
-                           AIPlayerSS(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
+                           AIPlayerR(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
                                       model_file_path=model_file_1, train_mode=False, verbose=False)]
             start_ts = time.time()
             for i in range(10):
