@@ -10,7 +10,7 @@ import __main__
 class ReversiCriticNetW(torch.nn.Module):
     def __init__(self):
         super(ReversiCriticNetW, self).__init__()
-        self.conv_l1 = torch.nn.Sequential(
+        self.conv_l1_s = torch.nn.Sequential(
             torch.nn.Conv2d(in_channels=4, out_channels=32, kernel_size=3, padding=1),
             torch.nn.BatchNorm2d(num_features=32),
             torch.nn.ReLU(),
@@ -22,13 +22,49 @@ class ReversiCriticNetW(torch.nn.Module):
             torch.nn.ReLU(),
         )
         # 128*8*8
-        self.conv_l2 = torch.nn.Sequential(
+        self.conv_l2_s = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels=128, out_channels=2, kernel_size=1, padding=0),
+            torch.nn.BatchNorm2d(num_features=2),
+            torch.nn.ReLU()
+        )
+        self.conv_l1_m = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels=4, out_channels=32, kernel_size=5, padding=2),
+            torch.nn.BatchNorm2d(num_features=32),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5, padding=2),
+            torch.nn.BatchNorm2d(num_features=64),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5, padding=2),
+            torch.nn.BatchNorm2d(num_features=128),
+            torch.nn.ReLU(),
+        )
+        # 128*8*8
+        self.conv_l2_m = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels=128, out_channels=2, kernel_size=1, padding=0),
+            torch.nn.BatchNorm2d(num_features=2),
+            torch.nn.ReLU()
+        )
+        self.conv_l1_l = torch.nn.Sequential(
+            torch.nn.Conv2d(in_channels=4, out_channels=32, kernel_size=7, padding=3),
+            torch.nn.BatchNorm2d(num_features=32),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(in_channels=32, out_channels=64, kernel_size=7, padding=3),
+            torch.nn.BatchNorm2d(num_features=64),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(in_channels=64, out_channels=128, kernel_size=7, padding=3),
+            torch.nn.BatchNorm2d(num_features=128),
+            torch.nn.ReLU(),
+        )
+        # 128*8*8
+        self.conv_l2_l = torch.nn.Sequential(
             torch.nn.Conv2d(in_channels=128, out_channels=2, kernel_size=1, padding=0),
             torch.nn.BatchNorm2d(num_features=2),
             torch.nn.ReLU()
         )
         self.linear_l1 = torch.nn.Sequential(
-            torch.nn.Linear(in_features=2*8*8, out_features=64),
+            torch.nn.Linear(in_features=(2+2+2)*8*8, out_features=128),
+            torch.nn.ReLU(),
+            torch.nn.Linear(in_features=128, out_features=64),
             torch.nn.BatchNorm1d(num_features=64),
             torch.nn.ReLU(),
             torch.nn.Linear(in_features=64, out_features=1)
@@ -42,12 +78,20 @@ class ReversiCriticNetW(torch.nn.Module):
         layer2: empty place
         layer3: the point which I want to put
         """
-        x = self.conv_l1(x)
-        x = self.conv_l2(x)
-        x = x.view(x.size(0), -1)
-        x = self.linear_l1(x)
-        x = self.output(x)
-        return x
+        xs = self.conv_l1_s(x)
+        xs = self.conv_l2_s(xs)
+
+        xm = self.conv_l1_m(x)
+        xm = self.conv_l2_m(xm)
+
+        xl = self.conv_l1_l(x)
+        xl = self.conv_l2_l(xl)
+
+        xo = torch.concat((xs, xm, xl), dim=0)
+        xo = x.view(xo.size(0), -1)
+        xo = self.linear_l1(xo)
+        xo = self.output(xo)
+        return xo
 
 
 setattr(__main__, 'ReversiCriticNetW', ReversiCriticNetW)
