@@ -190,7 +190,7 @@ class StablePlayer:
                                                            (end_ts-start_ts)))
         return position_list[max_idx_list[final_idx]]
 
-    def get_action(self, game_board, position_list, deep_analysis=True):
+    def get_action(self, game_board, position_list, deep_analysis=False):
         if deep_analysis:
             return self.deep_analysis(game_board, position_list, self.color)
         else:

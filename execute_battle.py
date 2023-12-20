@@ -4,11 +4,13 @@
 """
 import os
 import datetime
+import random
 import time
 import pandas as pd
 from train_game import ExecuteReversi
 from nn_player_ss import AIPlayerSS
 from nn_player_r import AIPlayerR
+from nn_player_w import AIPlayerW
 from train_utils import train_root_path
 
 default_models_root_path = 'c:/bomb/proj/ml_reversi_train'
@@ -59,6 +61,9 @@ def create_player(model_dict, color, oppo_color):
     elif model_dict['type'] in ['playerR']:
         return AIPlayerR(player_name=model_dict['name'], color=color, oppo_color=oppo_color,
                          model_file_path=model_dict['full_path'], train_mode=False, deep_all=False, verbose=False)
+    elif model_dict['type'] in ['playerW']:
+        return AIPlayerW(player_name=model_dict['name'], color=color, oppo_color=oppo_color,
+                         model_file_path=model_dict['full_path'], train_mode=False, deep_all=False, verbose=False)
 
 
 def trans_result(result):
@@ -94,43 +99,53 @@ def execute_battle(battle_param):
     per_round = 6
     df = pd.DataFrame(columns=('name', 'win', 'draw', 'loss', 'score'))
     model_dict_list = get_model_list(battle_param.models_group_path, battle_param.nn_label_list)
-    total_round = len(model_dict_list) * (len(model_dict_list) - 1) * per_round
+    total_start_ts = time.time()
+    round_list = []
+    for current_idx in range(len(model_dict_list) - 1):
+        for oppo_idx in range(current_idx + 1, len(model_dict_list)):
+            round_list.append([current_idx, oppo_idx])
+    round_list = random.sample(round_list, len(round_list))
+    total_round = len(round_list) * per_round
     print('Total {} round, might spend {} sec.'.format(total_round, 120*total_round))
-    for current_idx in range(len(model_dict_list)-1):
-        for oppo_idx in range(current_idx+1, len(model_dict_list)):
-            player_list = [create_player(model_dict_list[current_idx], battle_param.color_list[0],
-                                         battle_param.color_list[1]),
-                           create_player(model_dict_list[oppo_idx], battle_param.color_list[1],
-                                         battle_param.color_list[0])
-                           ]
-            start_ts = time.time()
-            for i in range(per_round):
-                if i % 2 == 1:
-                    reverse = True
-                else:
-                    reverse = False
-                exe_reversi = ExecuteReversi(reverse, game_path=battle_param.game_record_path, player_list=player_list)
-                exe_reversi.execute(deep_analysis=True)
-                result = {exe_reversi.player_list[0].player_name: exe_reversi.player_list[0].result,
-                          exe_reversi.player_list[1].player_name: exe_reversi.player_list[1].result}
-                new_line = trans_result(result)
-                for j in range(len(new_line)):
-                    if new_line[j]['name'] in list(df['name']):
-                        df.loc[df['name'] == new_line[j]['name'], 'win'] += new_line[j]['win']
-                        df.loc[df['name'] == new_line[j]['name'], 'draw'] += new_line[j]['draw']
-                        df.loc[df['name'] == new_line[j]['name'], 'loss'] += new_line[j]['loss']
-                        df.loc[df['name'] == new_line[j]['name'], 'score'] += new_line[j]['score']
-                    else:
-                        tmp_df = pd.DataFrame(new_line[j], index=[0])
-                        df = pd.concat((df, tmp_df), ignore_index=True)
-                end_ts = time.time()
-                print('{:0>3d}:{:0>3d} {} vs {} Round {} Spent {:.2f}'.
-                      format(current_idx, oppo_idx, model_dict_list[current_idx]['name'],
-                             model_dict_list[oppo_idx]['name'], i, (end_ts - start_ts)), end='\r')
-    print('')
     dt = datetime.datetime.now()
     result_file_path = '{}/battle_result_{}.csv'.format(battle_param.battle_path, dt.strftime('%Y%m%d%H%M%S'))
-    df.to_csv(path_or_buf=result_file_path, sep=',', float_format='%.0f')
+    battle_id = 0
+    for battle in round_list:
+        current_idx = battle[0]
+        oppo_idx = battle[1]
+        player_list = [create_player(model_dict_list[current_idx], battle_param.color_list[0],
+                                     battle_param.color_list[1]),
+                       create_player(model_dict_list[oppo_idx], battle_param.color_list[1],
+                                     battle_param.color_list[0])
+                       ]
+        start_ts = time.time()
+        for i in range(per_round):
+            battle_id += 1
+            if i % 2 == 1:
+                reverse = True
+            else:
+                reverse = False
+            exe_reversi = ExecuteReversi(reverse, game_path=battle_param.game_record_path, player_list=player_list)
+            exe_reversi.execute(deep_analysis=True)
+            result = {exe_reversi.player_list[0].player_name: exe_reversi.player_list[0].result,
+                      exe_reversi.player_list[1].player_name: exe_reversi.player_list[1].result}
+            new_line = trans_result(result)
+            for j in range(len(new_line)):
+                if new_line[j]['name'] in list(df['name']):
+                    df.loc[df['name'] == new_line[j]['name'], 'win'] += new_line[j]['win']
+                    df.loc[df['name'] == new_line[j]['name'], 'draw'] += new_line[j]['draw']
+                    df.loc[df['name'] == new_line[j]['name'], 'loss'] += new_line[j]['loss']
+                    df.loc[df['name'] == new_line[j]['name'], 'score'] += new_line[j]['score']
+                else:
+                    tmp_df = pd.DataFrame(new_line[j], index=[0])
+                    df = pd.concat((df, tmp_df), ignore_index=True)
+            end_ts = time.time()
+            print('{}: {} vs {} Round {} Spent {:.2f} Total {:.0f}      '.
+                  format(battle_id,  model_dict_list[current_idx]['name'], model_dict_list[oppo_idx]['name'], i,
+                         (end_ts - start_ts), (end_ts - total_start_ts)),
+                  end='\r')
+            df.to_csv(path_or_buf=result_file_path, sep=',', float_format='%.0f')
+    print('')
     return result_file_path
 
 

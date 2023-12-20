@@ -11,44 +11,6 @@ cnn_model_path = model_path + '/' + 'players'
 critic_model_file = 'model_critic.pkl'
 
 
-# class ReversiCriticNetR(torch.nn.Module):
-#     def __init__(self):
-#         super(ReversiCriticNetR, self).__init__()
-#         self.conv_l1 = torch.nn.Sequential(
-#             torch.nn.Conv2d(in_channels=4, out_channels=16, kernel_size=5, padding=2),
-#             torch.nn.BatchNorm2d(num_features=16),
-#             torch.nn.Tanh(),
-#             torch.nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, padding=2),
-#             torch.nn.BatchNorm2d(num_features=16),
-#             torch.nn.Tanh()
-#         )
-#         # 16*8*8
-#         self.conv_l2 = torch.nn.Sequential(
-#             torch.nn.Conv2d(in_channels=16, out_channels=64, kernel_size=5, padding=0),
-#             torch.nn.BatchNorm2d(num_features=64),
-#             torch.nn.Tanh(),
-#             torch.nn.Conv2d(in_channels=64, out_channels=256, kernel_size=4, padding=0),
-#             torch.nn.BatchNorm2d(num_features=256),
-#             torch.nn.Tanh()
-#         )
-#         self.linear_l1 = torch.nn.Linear(in_features=256, out_features=1)
-#         self.output = torch.nn.Tanh()
-#
-#     def forward(self, x):
-#         """
-#         layer0: my side
-#         layer1: oppo side
-#         layer2: empty place
-#         layer3: the point which I want to put
-#         """
-#         x = self.conv_l1(x)
-#         x = self.conv_l2(x)
-#         x = x.view(x.size(0), -1)
-#         x = self.linear_l1(x)
-#         x = self.output(x)
-#         return x
-
-
 class ReversiCriticNetR(torch.nn.Module):
     def __init__(self):
         super(ReversiCriticNetR, self).__init__()
@@ -171,6 +133,7 @@ class AIPlayerR:
         self.position_count = 0
         self.position_list = []
         self.result = None
+        label_list = ['playerR']
         if model_file_path is None:
             self.model_file = cnn_model_path + '/' + critic_model_file
         else:
@@ -180,6 +143,9 @@ class AIPlayerR:
         else:
             self.calc_device = torch.device('cpu')
         if os.path.exists(self.model_file):
+            file_label = self.model_file.split('/')[-1].split('_')[0]
+            if file_label not in label_list:
+                raise Exception('Wrong model file. {}'.format(self.model_file))
             if verbose:
                 print('{} is loaded {}'.format(player_name, self.model_file))
             if self.calc_device == torch.device('cpu'):

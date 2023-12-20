@@ -130,6 +130,7 @@ class AIPlayerSS:
         self.position_count = 0
         self.position_list = []
         self.result = None
+        label_list = ['players', 'playerss']
         if model_file_path is None:
             self.model_file = cnn_model_path + '/' + critic_model_file
         else:
@@ -139,6 +140,9 @@ class AIPlayerSS:
         else:
             self.calc_device = torch.device('cpu')
         if os.path.exists(self.model_file):
+            file_label = self.model_file.split('/')[-1].split('_')[0]
+            if file_label not in label_list:
+                raise Exception('Wrong model file. {}'.format(self.model_file))
             if verbose:
                 print('{} is loaded {}'.format(player_name, self.model_file))
             if self.calc_device == torch.device('cpu'):

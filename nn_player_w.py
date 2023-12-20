@@ -130,11 +130,15 @@ class AIPlayerW:
         self.position_list = []
         self.result = None
         self.model_file = model_file_path
+        label_list = ['playerW']
         if torch.cuda.is_available():
             self.calc_device = torch.device('cuda')
         else:
             self.calc_device = torch.device('cpu')
         if os.path.exists(self.model_file):
+            file_label = self.model_file.split('/')[-1].split('_')[0]
+            if file_label not in label_list:
+                raise Exception('Wrong model file. {}'.format(self.model_file))
             if verbose:
                 print('{} is loaded {}'.format(player_name, self.model_file))
             if self.calc_device == torch.device('cpu'):
