@@ -35,7 +35,7 @@ class NetTrain:
         self.examples_full_path = train_param.examples_path + train_param.examples_sub_path
         self.model_label = train_param.model_label
         self.model_file_list = []
-        print('Start training ReversiCriticNetW.')
+        print('Start training by {}.'.format(__file__))
 
     def train(self, epoch):
         loss_record = []
@@ -46,8 +46,9 @@ class NetTrain:
         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01, weight_decay=0.0001)
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(int(self.example_file_count), self.examples_full_path)
-        batch_count = int(len(dataset) / 256)
-        dataloader = DataLoader(dataset=dataset, batch_size=256, shuffle=True, num_workers=4)
+        batch_size = 1024
+        batch_count = int(len(dataset) / batch_size)
+        dataloader = DataLoader(dataset=dataset, batch_size=batch_size, shuffle=True, num_workers=4)
         for e in range(epoch):
             self.model.train()
             current_loss = 0
@@ -55,7 +56,7 @@ class NetTrain:
             for i, data in enumerate(dataloader):
                 middle_ts = time.time()
                 spent_time = middle_ts - start_ts
-                total_time = spent_time * batch_count / (i + 1) 
+                total_time = spent_time * batch_count / (i + 1)
                 print('Epoch {}: Spent {:.2f}/{:.2f}, load {}/{}.'.format(e, spent_time, total_time, i, batch_count),
                       end='\r')
                 tensor_x, tensor_y = data
