@@ -87,8 +87,8 @@ class ReversiCriticNetW(torch.nn.Module):
         xl = self.conv_l1_l(x)
         xl = self.conv_l2_l(xl)
 
-        xo = torch.concat((xs, xm, xl), dim=0)
-        xo = x.view(xo.size(0), -1)
+        xo = torch.concat((xs, xm, xl), dim=1)
+        xo = xo.view(xo.size(0), -1)
         xo = self.linear_l1(xo)
         xo = self.output(xo)
         return xo
