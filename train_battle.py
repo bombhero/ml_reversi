@@ -60,41 +60,52 @@ def trans_result(result):
 
 
 def execute_battle(battle_param):
+    battle_game_count = 10
     df = pd.DataFrame(columns=('name', 'win', 'draw', 'loss', 'score'))
     model_list = get_model_list(battle_param.nn_path, battle_param.nn_label)
+    battle_list = []
     for current_idx in range(len(model_list)-1):
         for oppo_idx in range(current_idx+1, len(model_list)):
-            model_file_0 = battle_param.nn_path + '/' + model_list[current_idx] + '/' + battle_param.model_filename
-            model_file_1 = battle_param.nn_path + '/' + model_list[oppo_idx] + '/' + battle_param.model_filename
-            player_list = [AIPlayerW(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
-                                     model_file_path=model_file_0, train_mode=False, verbose=False),
-                           AIPlayerW(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
-                                     model_file_path=model_file_1, train_mode=False, verbose=False)]
-            start_ts = time.time()
-            for i in range(10):
-                if i % 2 == 1:
-                    reverse = True
+            battle_list.append([current_idx, oppo_idx])
+    total_game_count = len(battle_list) * battle_game_count
+    total_start_ts = time.time()
+    for battle_idx in range(len(battle_list)):
+        current_idx = battle_list[battle_idx][0]
+        oppo_idx = battle_list[battle_idx][1]
+        model_file_0 = battle_param.nn_path + '/' + model_list[current_idx] + '/' + battle_param.model_filename
+        model_file_1 = battle_param.nn_path + '/' + model_list[oppo_idx] + '/' + battle_param.model_filename
+        player_list = [AIPlayerW(model_list[current_idx], battle_param.color_list[0], battle_param.color_list[1],
+                                 model_file_path=model_file_0, train_mode=False, verbose=False),
+                       AIPlayerW(model_list[oppo_idx], battle_param.color_list[1], battle_param.color_list[0],
+                                 model_file_path=model_file_1, train_mode=False, verbose=False)]
+        start_ts = time.time()
+        for i in range(battle_game_count):
+            if i % 2 == 1:
+                reverse = True
+            else:
+                reverse = False
+            exe_reversi = ExecuteReversi(reverse, game_path=battle_param.game_record_path, player_list=player_list)
+            exe_reversi.execute()
+            result = {exe_reversi.player_list[0].player_name: exe_reversi.player_list[0].result,
+                      exe_reversi.player_list[1].player_name: exe_reversi.player_list[1].result}
+            new_line = trans_result(result)
+            for j in range(len(new_line)):
+                if new_line[j]['name'] in list(df['name']):
+                    df.loc[df['name'] == new_line[j]['name'], 'win'] += new_line[j]['win']
+                    df.loc[df['name'] == new_line[j]['name'], 'draw'] += new_line[j]['draw']
+                    df.loc[df['name'] == new_line[j]['name'], 'loss'] += new_line[j]['loss']
+                    df.loc[df['name'] == new_line[j]['name'], 'score'] += new_line[j]['score']
                 else:
-                    reverse = False
-                exe_reversi = ExecuteReversi(reverse, game_path=battle_param.game_record_path, player_list=player_list)
-                exe_reversi.execute()
-                result = {exe_reversi.player_list[0].player_name: exe_reversi.player_list[0].result,
-                          exe_reversi.player_list[1].player_name: exe_reversi.player_list[1].result}
-                new_line = trans_result(result)
-                for j in range(len(new_line)):
-                    if new_line[j]['name'] in list(df['name']):
-                        df.loc[df['name'] == new_line[j]['name'], 'win'] += new_line[j]['win']
-                        df.loc[df['name'] == new_line[j]['name'], 'draw'] += new_line[j]['draw']
-                        df.loc[df['name'] == new_line[j]['name'], 'loss'] += new_line[j]['loss']
-                        df.loc[df['name'] == new_line[j]['name'], 'score'] += new_line[j]['score']
-                    else:
-                        tmp_df = pd.DataFrame(new_line[j], index=[0])
-                        df = pd.concat((df, tmp_df), ignore_index=True)
-                end_ts = time.time()
-                print('{:0>3d}:{:0>3d} {} vs {} Round {} Spent {:.2f}'.
-                      format(current_idx, oppo_idx, model_list[current_idx], model_list[oppo_idx], i,
-                             (end_ts - start_ts)),
-                      end='\r')
+                    tmp_df = pd.DataFrame(new_line[j], index=[0])
+                    df = pd.concat((df, tmp_df), ignore_index=True)
+            end_ts = time.time()
+            game_count = battle_idx * battle_game_count + i + 1
+            total_spent = end_ts - total_start_ts
+            total_time = total_spent * total_game_count / game_count
+            print('{:0>3d}:{:0>3d} {} vs {} Round {} Spent {:.2f}, total {:.2f}/{:.2f}'.
+                  format(current_idx, oppo_idx, model_list[current_idx], model_list[oppo_idx], i,
+                         (end_ts - start_ts), total_spent, total_time),
+                  end='\r')
     print('')
     dt = datetime.datetime.now()
     result_file_path = '{}/battle_result_{}.csv'.format(battle_param.battle_path, dt.strftime('%Y%m%d%H%M%S'))
