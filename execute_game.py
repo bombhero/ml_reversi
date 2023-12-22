@@ -11,7 +11,12 @@ from nn_player import AIPlayer
 from nn_player_j import AIPlayerJ
 from nn_player_s import AIPlayerS
 from nn_player_ss import AIPlayerSS
+from nn_player_r import AIPlayerR
+from nn_player_h import AIPlayerH
+from nn_player_w import AIPlayerW
 from calc_player import CalcPlayer
+from mobility_player import MobilityPlayer
+from stable_player import StablePlayer
 from comm_utils import example_path
 from comm_utils import records_path
 from comm_utils import model_path
@@ -27,8 +32,19 @@ jungle_model = model_path + '/playerj_backup_20231114/model_critic.pkl'
 start_a_model = model_path + '/players_backup_20231115A/model_critic.pkl'
 start_b_model = model_path + '/players_backup_20231115B/model_critic.pkl'
 start_c_model = model_path + '/players_backup_20231115C/model_critic.pkl'
-sun_model = model_path + '/players_backup/players_20231123125915/players_model.pkl'
-sunshine_model = model_path + '/players_backup/players_20231123140359/players_model.pkl'
+sun_model = 'c:/bomb/proj/ml_reversi_train/model_20231123/players_20231123221536/players_model.pkl'
+sunshine_model = 'c:/bomb/proj/ml_reversi_train/model_20231123/players_20231124015425/players_model.pkl'
+highway_model = 'c:/bomb/proj/ml_reversi_train/model_20231126/playerh_20231126194855/playerh_model.pkl'
+hardwork_model = 'c:/bomb/proj/ml_reversi_train/model_20231201/playerh_20231201140340/playerh_model.pkl'
+happy_model = 'c:/bomb/proj/ml_reversi_train/model_20231205/playerh_20231205163300/playerh_model.pkl'
+sunrise_model = 'c:/bomb/proj/ml_reversi_train/model_20231207/playerss_20231207091946/playerss_model.pkl'
+sunrun_model = 'c:/bomb/proj/ml_reversi_train/model_20231211/playerss_20231211130233/playerss_model.pkl'
+sundeep_model = 'c:/bomb/proj/ml_reversi_train/model_20231209/playerR_20231210172247/playerR_model.pkl'
+sunriver_model = 'c:/bomb/proj/ml_reversi_train/model_20231211/playerR_20231212025029/playerR_model.pkl'
+sunset_model = 'c:/bomb/proj/ml_reversi_train/models/playerss_backup/playerss_20231211202451/playerss_model.pkl'
+sunreport_model = 'c:/bomb/proj/ml_reversi_train/model_20231214/playerR_20231214075606/playerR_model.pkl'
+sunrate_model = 'c:/bomb/proj/ml_reversi_train/model_20231215/playerR_20231215161504/playerR_model.pkl'
+workact_model = 'c:/bomb/proj/ml_reversi_train/model_20231221/playerW_20231221220159/playerW_model.pkl'
 
 
 class ExecuteReversi:
@@ -45,8 +61,8 @@ class ExecuteReversi:
         # self.player_list.append(AIPlayerJ('NNJungle', list(self.reversi_game.gb.color_dict.keys())[0],
         #                                   list(self.reversi_game.gb.color_dict.keys())[1],
         #                                   model_file_path=jungle_model))
-        # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[1],
-        #                                   list(self.reversi_game.gb.color_dict.keys())[0],
+        # self.player_list.append(AIPlayerJ('NNJay', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1],
         #                                   model_file_path=jay_model))
         # self.player_list.append(AIPlayerS('NNStarA', list(self.reversi_game.gb.color_dict.keys())[0],
         #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
@@ -54,14 +70,45 @@ class ExecuteReversi:
         # self.player_list.append(AIPlayerS('NNSun', list(self.reversi_game.gb.color_dict.keys())[1],
         #                                   list(self.reversi_game.gb.color_dict.keys())[0], verbose=True,
         #                                   model_file_path=sun_model))
-        self.player_list.append(AIPlayerSS('NNSunD', list(self.reversi_game.gb.color_dict.keys())[0],
-                                           list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
-                                           model_file_path=sun_model))
-        self.player_list.append(AIPlayerSS('NNSunShine', list(self.reversi_game.gb.color_dict.keys())[1],
+        # self.player_list.append(AIPlayerSS('NNSunSet', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                    list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                    model_file_path=sunrun_model, deep_all=False))
+        self.player_list.append(AIPlayerSS('NNSunshine', list(self.reversi_game.gb.color_dict.keys())[1],
                                            list(self.reversi_game.gb.color_dict.keys())[0], verbose=True,
-                                           model_file_path=sunshine_model))
+                                           model_file_path=sunshine_model, deep_all=False))
+        # self.player_list.append(AIPlayerSS('NNSun', list(self.reversi_game.gb.color_dict.keys())[1],
+        #                                    list(self.reversi_game.gb.color_dict.keys())[0], verbose=True,
+        #                                    model_file_path=sun_model, deep_all=False))
+        # self.player_list.append(AIPlayerR('SunRate', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=sunrate_model, deep_all=False))
+        self.player_list.append(AIPlayerW('WorkAct', list(self.reversi_game.gb.color_dict.keys())[0],
+                                          list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+                                          model_file_path=workact_model, deep_all=False, timeout=5))
+        # self.player_list.append(AIPlayerR('SunReport', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=sunreport_model, deep_all=False))
+        # self.player_list.append(AIPlayerR('SunDeep', list(self.reversi_game.gb.color_dict.keys())[1],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[0], verbose=True,
+        #                                   model_file_path=sundeep_model, deep_all=False))
+        # self.player_list.append(AIPlayerR('SunRiver', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=sunriver_model, deep_all=False))
+        # self.player_list.append(MobilityPlayer('Mobil', list(self.reversi_game.gb.color_dict.keys())[1],
+        #                                        list(self.reversi_game.gb.color_dict.keys())[0], verbose=True))
+        # self.player_list.append(AIPlayerH('NNHighway', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=highway_model, deep_all=False))
+        # self.player_list.append(AIPlayerH('NNHardwork', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=hardwork_model, deep_all=False))
+        # self.player_list.append(AIPlayerH('NNHappy', list(self.reversi_game.gb.color_dict.keys())[0],
+        #                                   list(self.reversi_game.gb.color_dict.keys())[1], verbose=True,
+        #                                   model_file_path=happy_model, deep_all=True))
         # self.player_list.append(HumanPlayer('Bomb', list(self.reversi_game.gb.color_dict.keys())[0],
         #                                     list(self.reversi_game.gb.color_dict.keys())[1]))
+        # self.player_list.append(StablePlayer('Stable', list(self.reversi_game.gb.color_dict.keys())[1],
+        #                                      list(self.reversi_game.gb.color_dict.keys())[0]))
         # self.player_list.append(CalcPlayer('Calc', list(self.reversi_game.gb.color_dict.keys())[1],
         #                                    list(self.reversi_game.gb.color_dict.keys())[0]))
         if reverse:

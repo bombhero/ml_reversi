@@ -27,4 +27,6 @@ class TrainParam:
         self.examples_sub_path = '/training_data'
         # self.examples_sub_path = '/deep_v_deep'
         self.model_filename = '{}_model.pkl'.format(self.model_label)
+        self.train_round_id = 0
+        self.train_total_round = 0
 

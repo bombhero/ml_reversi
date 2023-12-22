@@ -43,7 +43,10 @@ class NetTrain:
             start_save_round = 5
         else:
             start_save_round = 10
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01, weight_decay=0.0001)
+        if self.reload:
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001, weight_decay=0.0001)
+        else:
+            optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01, weight_decay=0.0001)
         loss_func = torch.nn.L1Loss(reduction='mean')
         dataset = ReversiDataSet(int(self.example_file_count), self.examples_full_path)
         batch_size = 1024

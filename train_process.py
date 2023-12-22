@@ -10,12 +10,14 @@ from train_identify import identify_best_model
 
 def main():
     train_param = TrainParam()
-    total_round = 20
-    for idx in range(total_round):
-        print('--------------------------------------------------- Train Round {}/{}'.format(idx, total_round))
+    train_param.train_total_round = 20
+    for idx in range(train_param.train_total_round):
+        train_param.train_round_id = idx
+        print('--------------------------------------------------- Train Round {}/{}'.
+              format(idx, train_param.train_total_round))
         train_game_play(train_param)
-        # duplicate_example_checking(remove_dup=False,
-        #                            data_path=(train_param.examples_path + train_param.examples_sub_path))
+        duplicate_example_checking(remove_dup=False,
+                                   data_path=(train_param.examples_path + train_param.examples_sub_path))
         remove_old_examples(int(train_param.round_count * 1.2),
                             data_path=(train_param.examples_path + train_param.examples_sub_path))
         train_model(train_param)
