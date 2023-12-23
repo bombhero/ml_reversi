@@ -99,6 +99,8 @@ def execute_battle(battle_param):
     per_round = 6
     df = pd.DataFrame(columns=('name', 'win', 'draw', 'loss', 'score'))
     model_dict_list = get_model_list(battle_param.models_group_path, battle_param.nn_label_list)
+    for model_dict in model_dict_list:
+        print('{}'.format(model_dict['full_path']))
     total_start_ts = time.time()
     round_list = []
     for current_idx in range(len(model_dict_list) - 1):
@@ -106,7 +108,7 @@ def execute_battle(battle_param):
             round_list.append([current_idx, oppo_idx])
     round_list = random.sample(round_list, len(round_list))
     total_round = len(round_list) * per_round
-    print('Total {} round, might spend {} sec.'.format(total_round, 120*total_round))
+    print('Total {} rounds.'.format(total_round))
     dt = datetime.datetime.now()
     result_file_path = '{}/battle_result_{}.csv'.format(battle_param.battle_path, dt.strftime('%Y%m%d%H%M%S'))
     battle_id = 0
@@ -140,9 +142,11 @@ def execute_battle(battle_param):
                     tmp_df = pd.DataFrame(new_line[j], index=[0])
                     df = pd.concat((df, tmp_df), ignore_index=True)
             end_ts = time.time()
-            print('{}: {} vs {} Round {} Spent {:.2f} Total {:.0f}      '.
+            spent_time = end_ts - total_start_ts
+            total_time = spent_time * (per_round * len(round_list)) / battle_id
+            print('{}: {} vs {} Round {} Spent {:.2f} Total {:.0f}/{:.0f}      '.
                   format(battle_id,  model_dict_list[current_idx]['name'], model_dict_list[oppo_idx]['name'], i,
-                         (end_ts - start_ts), (end_ts - total_start_ts)),
+                         (end_ts - start_ts), spent_time, total_time),
                   end='\r')
             df.to_csv(path_or_buf=result_file_path, sep=',', float_format='%.0f')
     print('')
