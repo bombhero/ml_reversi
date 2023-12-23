@@ -70,6 +70,35 @@ def read_one_file(file_path):
     return example_x, example_y
 
 
+def read_files_from_list(file_list):
+    enhance_x = np.zeros([60*4*len(file_list), 4, 8, 8])
+    enhance_y = np.zeros([60*4*len(file_list)])
+    file_list = random.sample(file_list, len(file_list))
+    count = 0
+    total_row = 0
+    total_start_ts = time.time()
+    for file_path in file_list:
+        count += 1
+        if not os.path.exists(file_path):
+            continue
+        new_x, new_y = read_one_file(file_path)
+        if new_x is None:
+            continue
+
+        current_len = new_y.shape[0]
+        enhance_x[total_row:(total_row+current_len), :, :, :] = new_x
+        enhance_y[total_row:(total_row+current_len)] = new_y
+        total_row += current_len
+        end_ts = time.time()
+        print('Loading {}/{}: {}, spent {:.2f}'.
+              format(count, len(file_list), file_path.split('/')[-1], end_ts-total_start_ts), end='\r')
+    end_ts = time.time()
+    print('\nReading {}, spent {:.2f}'.format(count, end_ts - total_start_ts))
+    total_end_ts = time.time()
+    print('Loaded {} lines. Spent {:.2f} seconds.'.format(total_row, (total_end_ts - total_start_ts)))
+    return enhance_x[:total_row, :, :, :], enhance_y[:total_row]
+
+
 def read_all_files(file_count, data_path=default_data_path):
     enhance_x = np.zeros([60*4*file_count, 4, 8, 8])
     enhance_y = np.zeros([60*4*file_count])
@@ -196,7 +225,43 @@ class ReversiDataSet(Dataset):
         return self.data_y.shape[0]
 
 
+class ReversiDataSetS(Dataset):
+    def __init__(self, file_list):
+        x, y = read_files_from_list(file_list)
+        x, y = merge_and_average(x, y)
+        self.data_x = torch.from_numpy(np.float32(x))
+        self.data_y = torch.from_numpy(np.float32(y))
+
+    def __getitem__(self, item):
+        return self.data_x[item, :], self.data_y[item]
+
+    def __len__(self):
+        return self.data_y.shape[0]
+
+
+def get_reversi_dataset(train_file_count, examples_path):
+    test_file_count = int(train_file_count / 10)
+    example_list = os.listdir(examples_path)
+    example_list = random.sample(example_list, len(example_list))
+    if len(example_list) < (train_file_count + test_file_count):
+        train_count = int(float(train_file_count) * len(example_list) / float(train_file_count + test_file_count))
+        test_count = int(float(test_file_count) * len(example_list) / float(train_file_count + test_file_count))
+    else:
+        train_count = int(train_file_count)
+        test_count = int(test_file_count)
+    train_file_list = []
+    test_file_list = []
+    for idx in range(train_count):
+        train_file_list.append(examples_path + '/' + example_list[idx])
+    for idx in range(test_count):
+        test_file_list.append(examples_path + '/' + example_list[train_count + idx])
+    print('Prepare train dataset by {} files from {}'.format(train_count, examples_path))
+    train_dataset = ReversiDataSetS(train_file_list)
+    print('Prepare test dataset by {} files from {}'.format(test_count, examples_path))
+    test_dataset = ReversiDataSetS(test_file_list)
+    return train_dataset, test_dataset
+
+
 if __name__ == '__main__':
-    duplicate_example_checking(remove_dup=False)
-    # data_set = ReversiDataSet(file_count=100)
-    # print(len(data_set))
+    tst_train, tst_test = get_reversi_dataset(3000, 'e:/bomb/proj/ml_reversi_train/examples/deep_v_deep')
+    print('{}, {}'.format(len(tst_train), len(tst_test)))

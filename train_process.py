@@ -16,7 +16,7 @@ def main():
         print('--------------------------------------------------- Train Round {}/{}'.
               format(idx, train_param.train_total_round))
         train_game_play(train_param)
-        duplicate_example_checking(remove_dup=False,
+        duplicate_example_checking(remove_dup=True,
                                    data_path=(train_param.examples_path + train_param.examples_sub_path))
         remove_old_examples(int(train_param.round_count * 1.2),
                             data_path=(train_param.examples_path + train_param.examples_sub_path))
