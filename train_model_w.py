@@ -90,7 +90,7 @@ class NetTrain:
         loss_record = []
         out_average = 0
         if self.reload:
-            start_save_round = 1
+            start_save_round = 2 
         else:
             start_save_round = 10
         if self.reload:
@@ -171,10 +171,16 @@ class NetTrain:
             shutil.rmtree(self.model_file_list[0])
             del self.model_file_list[0]
 
+    def tear_down(self):
+        if self.calc_device == torch.device('cuda'):
+            del self.model
+            torch.cuda.empty_cache()
+
 
 def train_model(train_param):
     net_train = NetTrain(train_param)
     net_train.train_with_eval(200)
+    net_train.tear_down()
 
 
 if __name__ == '__main__':

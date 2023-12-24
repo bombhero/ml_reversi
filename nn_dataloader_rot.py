@@ -92,10 +92,8 @@ def read_files_from_list(file_list):
         end_ts = time.time()
         print('Loading {}/{}: {}, spent {:.2f}'.
               format(count, len(file_list), file_path.split('/')[-1], end_ts-total_start_ts), end='\r')
-    end_ts = time.time()
-    print('\nReading {}, spent {:.2f}'.format(count, end_ts - total_start_ts))
     total_end_ts = time.time()
-    print('Loaded {} lines. Spent {:.2f} seconds.'.format(total_row, (total_end_ts - total_start_ts)))
+    print('\nLoaded {} lines. Spent {:.2f} seconds.'.format(total_row, (total_end_ts - total_start_ts)))
     return enhance_x[:total_row, :, :, :], enhance_y[:total_row]
 
 
@@ -193,7 +191,7 @@ def duplicate_example_checking(remove_dup=False, data_path=default_data_path):
             # print('Remove {}'.format(file_path))
             os.remove(file_path)
             remove_count += 1
-        print('Remained {}, Removed {}'.format(len(md5_dict), remove_count))
+        print('Remained {}, Removed duplicated {}'.format(len(md5_dict), remove_count))
     else:
         print('Remained {}, Duplicate {}'.format(len(md5_dict), len(dup_list)))
 

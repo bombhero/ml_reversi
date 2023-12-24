@@ -102,7 +102,7 @@ def execute_battle(battle_param):
             game_count = battle_idx * battle_game_count + i + 1
             total_spent = end_ts - total_start_ts
             total_time = total_spent * total_game_count / game_count
-            print('{:0>3d}:{:0>3d} {} vs {} Round {} Spent {:.2f}, total {:.2f}/{:.2f}'.
+            print('{:0>3d}:{:0>3d} {} vs {} Round {} Spent {:.2f}, Total {:.2f}/{:.2f}'.
                   format(current_idx, oppo_idx, model_list[current_idx], model_list[oppo_idx], i,
                          (end_ts - start_ts), total_spent, total_time),
                   end='\r')
