@@ -140,19 +140,17 @@ class NetTrain:
             end_ts = time.time()
             print('Epoch {}: Spent {:.2f}sec, train_loss = {:.4f}, test_loss = {:.4f}'.
                   format(e, (end_ts - start_ts), current_loss, test_loss))
-            if len(loss_record) == 0:
-                loss_record.append(test_loss)
-            elif test_loss < (sum(loss_record) / len(loss_record)):
-                loss_record.append(test_loss)
+            loss_record.append(test_loss)
             if len(loss_record) > start_save_round:
-                if len(loss_record) > 10:
-                    del loss_record[0]
                 if test_loss > (sum(loss_record) / len(loss_record)):
                     out_average += 1
+                    del loss_record[-1]
                     print('Test loss({:.4f}) is higher than ave loss({:.4f}), out={}'.
                           format(test_loss, (sum(loss_record) / len(loss_record)), out_average))
                 else:
                     out_average = 0
+                if len(loss_record) > 10:
+                    del loss_record[0]
                 if out_average >= 2:
                     break
                 else:
