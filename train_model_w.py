@@ -144,9 +144,9 @@ class NetTrain:
             if len(loss_record) > start_save_round:
                 if test_loss > (sum(loss_record) / len(loss_record)):
                     out_average += 1
-                    del loss_record[-1]
                     print('Test loss({:.4f}) is higher than ave loss({:.4f}), out={}'.
                           format(test_loss, (sum(loss_record) / len(loss_record)), out_average))
+                    del loss_record[-1]
                 else:
                     out_average = 0
                 if len(loss_record) > 10:
